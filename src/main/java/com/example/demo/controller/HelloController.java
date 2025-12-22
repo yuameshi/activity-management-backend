@@ -5,24 +5,24 @@ import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.mapper.HelloMapper;
+import com.example.demo.service.HelloService;
 import com.example.demo.model.HelloEntity;
 
 @RestController
 public class HelloController {
 
-	private final HelloMapper helloMapper;
+	private final HelloService helloService;
 
-	public HelloController(HelloMapper helloMapper) {
-		this.helloMapper = helloMapper;
+	public HelloController(HelloService helloService) {
+		this.helloService = helloService;
 	}
 
 	@GetMapping("/api/hello")
 	public List<HelloEntity> helloApi() {
-		return helloMapper.findAll();
+		return helloService.findAll();
 	}
 	@GetMapping("/api/hello-desc")
 	public List<HelloEntity> helloDescApi() {
-		return helloMapper.findAllDesc();
+		return helloService.findAllDesc();
 	}
 }
