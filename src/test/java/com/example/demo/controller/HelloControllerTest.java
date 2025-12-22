@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -32,9 +32,9 @@ class HelloControllerTest {
 
 	@Configuration
 	@EnableWebMvc
-	@ComponentScan(basePackageClasses = { HelloController.class })
+	@Import(HelloController.class)
 	static class TestConfig {
-
+	
 		@Bean
 		HelloMapper helloMapper() {
 			// 避免测试依赖真实数据库：这里提供一个简单的 stub 返回固定数据
@@ -45,7 +45,7 @@ class HelloControllerTest {
 							new HelloEntity(1, "row1"),
 							new HelloEntity(2, "row2"));
 				}
-
+	
 				@Override
 				public List<HelloEntity> findAllDesc() {
 					return List.of(
@@ -54,7 +54,11 @@ class HelloControllerTest {
 				}
 			};
 		}
-
+	
+		@Bean
+		public com.example.demo.service.HelloService helloService() {
+			return new com.example.demo.service.HelloService(helloMapper());
+		}
 	}
 
 	@Autowired
