@@ -7,7 +7,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -78,5 +80,90 @@ public class UserService {
         result.put("token", token);
         result.put("user", safe);
         return result;
+    }
+
+    /**
+     * 根据 id 获取用户（安全视图：不返回密码）
+     */
+    public User getById(Long id) {
+        if (id == null) throw new IllegalArgumentException("id required");
+        User u = userMapper.findById(id);
+        if (u == null) return null;
+        User safe = new User();
+        safe.setId(u.getId());
+        safe.setUsername(u.getUsername());
+        safe.setRealName(u.getRealName());
+        safe.setEmail(u.getEmail());
+        safe.setPhone(u.getPhone());
+        safe.setAvatar(u.getAvatar());
+        safe.setStatus(u.getStatus());
+        safe.setCreateTime(u.getCreateTime());
+        return safe;
+    }
+
+    /**
+     * 列出所有用户（安全视图）
+     */
+    public List<User> listUsers() {
+        List<User> all = userMapper.findAll();
+        List<User> out = new ArrayList<>();
+        if (all == null) return out;
+        for (User u : all) {
+            User safe = new User();
+            safe.setId(u.getId());
+            safe.setUsername(u.getUsername());
+            safe.setRealName(u.getRealName());
+            safe.setEmail(u.getEmail());
+            safe.setPhone(u.getPhone());
+            safe.setAvatar(u.getAvatar());
+            safe.setStatus(u.getStatus());
+            safe.setCreateTime(u.getCreateTime());
+            out.add(safe);
+        }
+        return out;
+    }
+
+    /**
+     * 更新用户信息。仅允许管理员或用户本人修改。
+     * 简单 RBAC：用户名为 "admin" 的用户视为管理员。
+     */
+    public User updateUser(Long requesterId, String requesterUsername, Long targetId, User update) {
+        if (requesterId == null || requesterUsername == null || targetId == null || update == null) {
+            throw new IllegalArgumentException("invalid parameters");
+        }
+        User target = userMapper.findById(targetId);
+        if (target == null) {
+            throw new IllegalArgumentException("user not found");
+        }
+        boolean isAdmin = "admin".equalsIgnoreCase(requesterUsername);
+        if (!isAdmin && !requesterId.equals(targetId)) {
+            throw new IllegalArgumentException("forbidden: only admin or owner can modify");
+        }
+        // apply allowed updates
+        if (update.getRealName() != null) target.setRealName(update.getRealName());
+        if (update.getEmail() != null) target.setEmail(update.getEmail());
+        if (update.getPhone() != null) target.setPhone(update.getPhone());
+        if (update.getAvatar() != null) target.setAvatar(update.getAvatar());
+        if (update.getStatus() != null && isAdmin) {
+            // only admin can change status
+            target.setStatus(update.getStatus());
+        }
+        if (update.getPassword() != null && !update.getPassword().isEmpty()) {
+            // allow password change for owner or admin
+            String hashed = passwordEncoder.encode(update.getPassword());
+            target.setPassword(hashed);
+        }
+        userMapper.updateUser(target);
+        // return safe view
+        User safe = new User();
+        safe.setId(target.getId());
+        safe.setUsername(target.getUsername());
+        safe.setRealName(target.getRealName());
+        safe.setEmail(target.getEmail());
+        safe.setPhone(target.getPhone());
+        safe.setAvatar(target.getAvatar());
+        safe.setStatus(target.getStatus());
+        safe.setCreateTime(target.getCreateTime());
+        return safe;
     }
 }

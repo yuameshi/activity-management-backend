@@ -1,0 +1,122 @@
+package com.example.demo.controller;
+
+import com.example.demo.model.User;
+import com.example.demo.service.UserService;
+import com.example.demo.util.JwtUtil;
+import io.jsonwebtoken.Claims;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 用户相关接口：信息查询、修改、列表（管理员）
+ */
+@RestController
+@RequestMapping("/api/user")
+public class UserController {
+
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    private Claims parseAuth(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("missing or invalid Authorization header");
+        }
+        String token = authHeader.substring("Bearer ".length());
+        return JwtUtil.parseToken(token);
+    }
+
+    /**
+     * 获取用户信息
+     * 可选参数 id：管理员可以查询任意用户，普通用户只能查询本人。不传 id 则返回当前登录用户信息。
+     */
+    @GetMapping("/info")
+    public ResponseEntity<?> info(@RequestHeader(value = "Authorization", required = false) String auth,
+                                  @RequestParam(value = "id", required = false) Long id) {
+        try {
+            Claims claims = parseAuth(auth);
+            Long requesterId = ((Number) claims.get("id")).longValue();
+            String requesterUsername = (String) claims.get("username");
+            boolean isAdmin = "admin".equalsIgnoreCase(requesterUsername);
+
+            Long targetId = id == null ? requesterId : id;
+            if (!isAdmin && !requesterId.equals(targetId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
+            }
+            User u = userService.getById(targetId);
+            if (u == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found"));
+            return ResponseEntity.ok(u);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", ex.getMessage()));
+        }
+    }
+
+    /**
+     * 修改用户信息（仅管理员或本人）
+     * 请求体为用户的可修改字段（realName, email, phone, avatar, password, status）
+     * 管理员可修改 status；普通用户不能修改 status。
+     * 通过 query param targetId 指定要修改的用户（管理员可以指定，普通用户忽略并仅修改自己）
+     */
+    @PutMapping("/update")
+    public ResponseEntity<?> update(@RequestHeader(value = "Authorization", required = false) String auth,
+                                    @RequestParam(value = "targetId", required = false) Long targetId,
+                                    @RequestBody User update) {
+        try {
+            Claims claims = parseAuth(auth);
+            Long requesterId = ((Number) claims.get("id")).longValue();
+            String requesterUsername = (String) claims.get("username");
+            boolean isAdmin = "admin".equalsIgnoreCase(requesterUsername);
+            Long tid = targetId == null ? requesterId : targetId;
+
+            // 前置权限校验：非管理员且非本人禁止修改 —— 使控制器在 service 未模拟抛异常时仍然能返回 403（满足单元测试预期）
+            if (!isAdmin && !requesterId.equals(tid)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
+            }
+
+            User updated = userService.updateUser(requesterId, requesterUsername, tid, update);
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException ex) {
+            String msg = ex.getMessage() == null ? "" : ex.getMessage().toLowerCase();
+            if (msg.contains("forbidden")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", ex.getMessage()));
+            } else if (msg.contains("not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", ex.getMessage()));
+            } else if (msg.contains("missing") || msg.contains("required") || msg.contains("invalid")) {
+                return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", ex.getMessage()));
+            }
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", ex.getMessage()));
+        }
+    }
+
+    /**
+     * 管理员获取用户列表
+     */
+    @GetMapping("/list")
+    public ResponseEntity<?> list(@RequestHeader(value = "Authorization", required = false) String auth) {
+        try {
+            Claims claims = parseAuth(auth);
+            String requesterUsername = (String) claims.get("username");
+            boolean isAdmin = "admin".equalsIgnoreCase(requesterUsername);
+            if (!isAdmin) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
+            }
+            List<User> users = userService.listUsers();
+            return ResponseEntity.ok(users);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", ex.getMessage()));
+        }
+    }
+}

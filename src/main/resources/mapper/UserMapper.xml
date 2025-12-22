@@ -29,4 +29,21 @@
     SELECT * FROM user WHERE id = #{id}
   </select>
 
+  <select id="findAll" resultMap="UserResultMap">
+    SELECT * FROM user ORDER BY id
+  </select>
+
+  <update id="updateUser" parameterType="com.example.demo.model.User">
+    UPDATE user
+    <set>
+      <if test="password != null">password = #{password},</if>
+      <if test="realName != null">real_name = #{realName},</if>
+      <if test="email != null">email = #{email},</if>
+      <if test="phone != null">phone = #{phone},</if>
+      <if test="avatar != null">avatar = #{avatar},</if>
+      <if test="status != null">status = #{status},</if>
+    </set>
+    WHERE id = #{id}
+  </update>
+
 </mapper>
