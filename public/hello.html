@@ -4,51 +4,41 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>Hello World!</title>
-		<style>
-			body {
-				font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, 'Noto Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-				padding: 16px;
-			}
-			table {
-				border-collapse: collapse;
-				width: 100%;
-			}
-			th,
-			td {
-				border: 1px solid #ccc;
-				padding: 6px 10px;
-				text-align: left;
-				vertical-align: top;
-			}
-			th {
-				background: #f6f6f6;
-			}
-			.error {
-				color: #b00020;
-				white-space: pre-wrap;
-			}
-			.muted {
-				color: #666;
-			}
-		</style>
+		<link rel="stylesheet" href="style.css" />
 	</head>
 	<body>
 		<h1>Hello World!</h1>
-		<code>SELECT id, content FROM hello ORDER BY id</code>
-		<p class="muted">Data source：<code>/api/hello</code></p>
-
 		<div id="error" class="error" style="display: none"></div>
 
-		<table aria-label="hello table">
-			<thead>
-				<tr>
-					<th>id</th>
-					<th>content</th>
-				</tr>
-			</thead>
-			<tbody id="rows"></tbody>
-		</table>
+		<p class="muted">Data source：<code>/api/hello</code></p>
+		<p class="muted">SQL：<code>SELECT id, content FROM hello ORDER BY id</code></p>
+		<details>
+			<summary>SQL Query</summary>
+			<table aria-label="hello table">
+				<thead>
+					<tr>
+						<th>id</th>
+						<th>content</th>
+					</tr>
+				</thead>
+				<tbody id="rows"></tbody>
+			</table>
+		</details>
 
+		<p class="muted">Data source：<code>/api/hello-desc</code></p>
+		<p class="muted">SQL：<code>SELECT id, content FROM hello ORDER BY id DESC</code></p>
+		<details>
+			<summary>SQL Query (DESC)</summary>
+			<table aria-label="hello table desc">
+				<thead>
+					<tr>
+						<th>id</th>
+						<th>content</th>
+					</tr>
+				</thead>
+				<tbody id="rows-desc"></tbody>
+			</table>
+		</details>
 		<script>
 			const errorEl = document.getElementById('error');
 			const rowsEl = document.getElementById('rows');
@@ -64,14 +54,14 @@
 				return cell;
 			}
 
-			async function loadData() {
-				const resp = await fetch('/api/hello', {
+			async function loadData(api, tableId) {
+				const resp = await fetch(api, {
 					headers: { Accept: 'application/json' },
 				});
 
 				if (!resp.ok) {
 					const text = await resp.text();
-					throw new Error('请求 /api/hello 失败，HTTP ' + resp.status + '\n' + text);
+					throw new Error('请求 ' + api + ' 失败，HTTP ' + resp.status + '\n' + text);
 				}
 
 				const data = await resp.json();
@@ -79,16 +69,18 @@
 					throw new Error('响应不是数组：' + JSON.stringify(data));
 				}
 
-				rowsEl.innerHTML = '';
+				const rows = document.getElementById(tableId);
+				rows.innerHTML = '';
 				for (const row of data) {
 					const tr = document.createElement('tr');
 					tr.appendChild(td(row.id));
 					tr.appendChild(td(row.content));
-					rowsEl.appendChild(tr);
+					rows.appendChild(tr);
 				}
 			}
 
-			loadData().catch(err => showError(err && err.message ? err.message : String(err)));
+			loadData('/api/hello', 'rows').catch(err => showError(err && err.message ? err.message : String(err)));
+			loadData('/api/hello-desc', 'rows-desc').catch(err => showError(err && err.message ? err.message : String(err)));
 		</script>
 	</body>
 </html>

@@ -17,4 +17,7 @@ public interface HelloMapper {
 			""")
 	List<HelloEntity> findAll();
 
+	// XML方式实现，查询ID倒序
+	List<HelloEntity> findAllDesc();
+
 }

@@ -38,9 +38,21 @@ class HelloControllerTest {
 		@Bean
 		HelloMapper helloMapper() {
 			// 避免测试依赖真实数据库：这里提供一个简单的 stub 返回固定数据
-			return () -> List.of(
-					new HelloEntity(1, "row1"),
-					new HelloEntity(2, "row2"));
+			return new HelloMapper() {
+				@Override
+				public List<HelloEntity> findAll() {
+					return List.of(
+							new HelloEntity(1, "row1"),
+							new HelloEntity(2, "row2"));
+				}
+
+				@Override
+				public List<HelloEntity> findAllDesc() {
+					return List.of(
+							new HelloEntity(2, "row2"),
+							new HelloEntity(1, "row1"));
+				}
+			};
 		}
 
 	}

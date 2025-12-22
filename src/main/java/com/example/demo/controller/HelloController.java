@@ -21,4 +21,8 @@ public class HelloController {
 	public List<HelloEntity> helloApi() {
 		return helloMapper.findAll();
 	}
+	@GetMapping("/api/hello-desc")
+	public List<HelloEntity> helloDescApi() {
+		return helloMapper.findAllDesc();
+	}
 }
