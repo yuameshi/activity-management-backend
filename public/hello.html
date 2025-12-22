@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Hello World!</title>
+		<style>
+			body {
+				font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, 'Noto Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+				padding: 16px;
+			}
+			table {
+				border-collapse: collapse;
+				width: 100%;
+			}
+			th,
+			td {
+				border: 1px solid #ccc;
+				padding: 6px 10px;
+				text-align: left;
+				vertical-align: top;
+			}
+			th {
+				background: #f6f6f6;
+			}
+			.error {
+				color: #b00020;
+				white-space: pre-wrap;
+			}
+			.muted {
+				color: #666;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Hello World!</h1>
+		<code>SELECT id, content FROM hello ORDER BY id</code>
+		<p class="muted">Data source：<code>/api/hello</code></p>
+
+		<div id="error" class="error" style="display: none"></div>
+
+		<table aria-label="hello table">
+			<thead>
+				<tr>
+					<th>id</th>
+					<th>content</th>
+				</tr>
+			</thead>
+			<tbody id="rows"></tbody>
+		</table>
+
+		<script>
+			const errorEl = document.getElementById('error');
+			const rowsEl = document.getElementById('rows');
+
+			function showError(message) {
+				errorEl.style.display = 'block';
+				errorEl.textContent = message;
+			}
+
+			function td(text) {
+				const cell = document.createElement('td');
+				cell.textContent = text == null ? '' : String(text);
+				return cell;
+			}
+
+			async function loadData() {
+				const resp = await fetch('/api/hello', {
+					headers: { Accept: 'application/json' },
+				});
+
+				if (!resp.ok) {
+					const text = await resp.text();
+					throw new Error('请求 /api/hello 失败，HTTP ' + resp.status + '\n' + text);
+				}
+
+				const data = await resp.json();
+				if (!Array.isArray(data)) {
+					throw new Error('响应不是数组：' + JSON.stringify(data));
+				}
+
+				rowsEl.innerHTML = '';
+				for (const row of data) {
+					const tr = document.createElement('tr');
+					tr.appendChild(td(row.id));
+					tr.appendChild(td(row.content));
+					rowsEl.appendChild(tr);
+				}
+			}
+
+			loadData().catch(err => showError(err && err.message ? err.message : String(err)));
+		</script>
+	</body>
+</html>

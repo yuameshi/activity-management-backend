@@ -1,14 +1,24 @@
 package com.example.demo.controller;
 
-import org.springframework.http.MediaType;
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.mapper.HelloMapper;
+import com.example.demo.model.HelloEntity;
 
 @RestController
 public class HelloController {
 
-	@GetMapping(value = "/hello", produces = MediaType.TEXT_PLAIN_VALUE)
-	public String hello() {
-		return "Hello World";
+	private final HelloMapper helloMapper;
+
+	public HelloController(HelloMapper helloMapper) {
+		this.helloMapper = helloMapper;
+	}
+
+	@GetMapping("/api/hello")
+	public List<HelloEntity> helloApi() {
+		return helloMapper.findAll();
 	}
 }
