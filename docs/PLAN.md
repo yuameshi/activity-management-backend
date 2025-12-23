@@ -194,15 +194,16 @@ usecase
 
 ### 5.3 报名与签到
 
--   GET /api/registration/{id} 查看报名状态
--   POST /api/registration/apply 报名
--   DELETE /api/registration/cancel/{id} 取消报名
+-   GET /api/registration/{activityId} 查看自身报名状态（获取自身报名信息）
+-   POST /api/registration/check/{activityId} 检查是否已报名指定 ID 的活动
+-   POST /api/registration/{activityId}/apply 给自身报名指定 ID 的活动（携带 Authorization 头，管理员可以给其他用户报名，需在 body 中使用 userId 注明）
+-   DELETE /api/registration/cancel/{id} 取消指定的报名 ID（默认取消自身报名，管理员可取消任何用户报名）
 -   GET /api/registration/list/{activityId} 报名列表（仅管理员可以查看）
 -   DELETE /api/registration/delete/{id} 删除报名记录（即取消指定用户报名，仅管理员可以操作）
--   POST /api/attendance/generate 生成签到码（使用Server-Sent Events技术推送签到码，直接推送临时URL，管理员前端生成二维码）
--   备注：签到码30秒刷新一次，使用TOTP技术（时间同步一次性密码算法）生成动态签到码
+-   POST /api/attendance/generate 生成签到码（使用 Server-Sent Events 技术推送签到码，直接推送临时 URL，管理员前端生成二维码）
+-   备注：签到码 30 秒刷新一次，使用 TOTP 技术（时间同步一次性密码算法）生成动态签到码
 -   POST /api/attendance/sign 签到（扫码或在签到列表中手动签到）
--   备注：签到时需要验证签到码的有效性且签到码仅在生成后的30秒内有效，无窗口期
+-   备注：签到时需要验证签到码的有效性且签到码仅在生成后的 30 秒内有效，无窗口期
 -   GET /api/attendance/list/{activityId} 签到列表（可以设置已签/迟到/未签等状态）
 
 ### 5.4 消息通知
