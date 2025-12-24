@@ -89,7 +89,7 @@ class ActivityControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("1"));
+                .andExpect(content().string("{\"affected\":1}"));
 
         ArgumentCaptor<Activity> captor = ArgumentCaptor.forClass(Activity.class);
         verify(activityService).createActivity(captor.capture());
@@ -107,7 +107,7 @@ class ActivityControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("1"));
+                .andExpect(content().string("{\"affected\":1}"));
 
         ArgumentCaptor<Activity> captor = ArgumentCaptor.forClass(Activity.class);
         verify(activityService).updateActivity(captor.capture());
@@ -122,7 +122,7 @@ class ActivityControllerTest {
 
         mockMvc.perform(delete("/api/activity/delete/7"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("1"));
+                .andExpect(content().string("{\"affected\":1}"));
 
         verify(activityService).deleteById(7L);
     }
@@ -134,7 +134,7 @@ class ActivityControllerTest {
 
         mockMvc.perform(post("/api/activity/audit/8").param("status", "1"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("1"));
+                .andExpect(content().string("{\"affected\":1}"));
 
         verify(activityService).auditActivity(8L, (byte)1);
     }

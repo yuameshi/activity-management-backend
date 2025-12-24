@@ -94,7 +94,7 @@ class RegistrationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(null)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("1"));
+                .andExpect(content().string("{\"applied\":true}"));
 
         ArgumentCaptor<Registration> captor = ArgumentCaptor.forClass(Registration.class);
         verify(registrationService).createRegistration(captor.capture());
@@ -113,7 +113,7 @@ class RegistrationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(body)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("1"));
+                .andExpect(content().string("{\"applied\":true}"));
 
         ArgumentCaptor<Registration> captor = ArgumentCaptor.forClass(Registration.class);
         verify(registrationService).createRegistration(captor.capture());
@@ -132,7 +132,7 @@ class RegistrationControllerTest {
         mockMvc.perform(delete("/api/registration/cancel/3")
                         .header("Authorization", bearerToken(7L, "user7")))
                 .andExpect(status().isOk())
-                .andExpect(content().string("1"));
+                .andExpect(content().string("{\"cancelled\":true}"));
 
         verify(registrationService).deleteById(3L);
     }
@@ -161,7 +161,7 @@ class RegistrationControllerTest {
         b.setUserId(3L);
         when(registrationService.listByActivityId(30L)).thenReturn(List.of(a, b));
 
-        mockMvc.perform(get("/api/registration/list/30")
+        mockMvc.perform(get("/api/registration/30/list-applications")
                         .header("Authorization", bearerToken(200L, "admin"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -175,7 +175,7 @@ class RegistrationControllerTest {
         mockMvc.perform(delete("/api/registration/delete/5")
                         .header("Authorization", bearerToken(300L, "admin")))
                 .andExpect(status().isOk())
-                .andExpect(content().string("1"));
+                .andExpect(content().string("{\"cancelled\":true}"));
 
         verify(registrationService).deleteById(5L);
     }

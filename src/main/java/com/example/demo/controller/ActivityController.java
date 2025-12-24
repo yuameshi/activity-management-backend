@@ -3,6 +3,9 @@ package com.example.demo.controller;
 import com.example.demo.service.ActivityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import java.util.Map;
 
 /**
  * 活动控制器：列表/详情/创建/更新/删除/审核
@@ -31,9 +34,11 @@ public class ActivityController {
      * @return 活动或 null（若 id 为 null 或不存在）
      */
     @GetMapping("/{id}")
-    public com.example.demo.model.Activity get(@org.springframework.web.bind.annotation.PathVariable Long id) {
-        if (id == null) return null;
-        return activityService.getById(id);
+    public ResponseEntity<?> get(@org.springframework.web.bind.annotation.PathVariable Long id) {
+        if (id == null) return ResponseEntity.badRequest().body(Map.of("error", "id is required"));
+        com.example.demo.model.Activity r = activityService.getById(id);
+        if (r == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("data", null));
+        return ResponseEntity.ok(r);
     }
 
     /**
@@ -43,9 +48,10 @@ public class ActivityController {
      * @return 受影响行数
      */
     @PostMapping("/create")
-    public int create(@org.springframework.web.bind.annotation.RequestBody com.example.demo.model.Activity activity) {
-        if (activity == null) return 0;
-        return activityService.createActivity(activity);
+    public ResponseEntity<?> create(@org.springframework.web.bind.annotation.RequestBody com.example.demo.model.Activity activity) {
+        if (activity == null) return ResponseEntity.badRequest().body(Map.of("affected", 0));
+        int res = activityService.createActivity(activity);
+        return ResponseEntity.ok(Map.of("affected", res));
     }
 
     /**
@@ -56,11 +62,12 @@ public class ActivityController {
      * @return 受影响行数
      */
     @PutMapping("/update/{id}")
-    public int update(@org.springframework.web.bind.annotation.PathVariable Long id,
-                      @org.springframework.web.bind.annotation.RequestBody com.example.demo.model.Activity activity) {
-        if (id == null || activity == null) return 0;
+    public ResponseEntity<?> update(@org.springframework.web.bind.annotation.PathVariable Long id,
+                                    @org.springframework.web.bind.annotation.RequestBody com.example.demo.model.Activity activity) {
+        if (id == null || activity == null) return ResponseEntity.badRequest().body(Map.of("affected", 0));
         activity.setId(id);
-        return activityService.updateActivity(activity);
+        int res = activityService.updateActivity(activity);
+        return ResponseEntity.ok(Map.of("affected", res));
     }
 
     /**
@@ -70,9 +77,10 @@ public class ActivityController {
      * @return 受影响行数
      */
     @DeleteMapping("/delete/{id}")
-    public int delete(@org.springframework.web.bind.annotation.PathVariable Long id) {
-        if (id == null) return 0;
-        return activityService.deleteById(id);
+    public ResponseEntity<?> delete(@org.springframework.web.bind.annotation.PathVariable Long id) {
+        if (id == null) return ResponseEntity.badRequest().body(Map.of("affected", 0));
+        int res = activityService.deleteById(id);
+        return ResponseEntity.ok(Map.of("affected", res));
     }
 
     /**
@@ -83,9 +91,10 @@ public class ActivityController {
      * @return 受影响行数
      */
     @PostMapping("/audit/{id}")
-    public int audit(@org.springframework.web.bind.annotation.PathVariable Long id,
-                     @org.springframework.web.bind.annotation.RequestParam Byte status) {
-        if (id == null || status == null) return 0;
-        return activityService.auditActivity(id, status);
+    public ResponseEntity<?> audit(@org.springframework.web.bind.annotation.PathVariable Long id,
+                                   @org.springframework.web.bind.annotation.RequestParam Byte status) {
+        if (id == null || status == null) return ResponseEntity.badRequest().body(Map.of("affected", 0));
+        int res = activityService.auditActivity(id, status);
+        return ResponseEntity.ok(Map.of("affected", res));
     }
 }
