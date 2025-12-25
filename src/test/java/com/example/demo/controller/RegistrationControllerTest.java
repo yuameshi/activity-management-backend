@@ -4,6 +4,8 @@ import com.example.demo.model.Registration;
 import com.example.demo.service.RegistrationService;
 import com.example.demo.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -37,6 +39,7 @@ class RegistrationControllerTest {
         RegistrationController controller = new RegistrationController(registrationService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
         objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
     }
 
     private String bearerToken(Long id, String username) {
