@@ -38,7 +38,7 @@ public class UserController {
      */
     @GetMapping("/info")
     public ResponseEntity<?> info(@RequestHeader(value = "Authorization", required = false) String auth,
-                                  @RequestParam(value = "id", required = false) Long id) {
+            @RequestParam(value = "id", required = false) Long id) {
         try {
             Claims claims = parseAuth(auth);
             Long requesterId = ((Number) claims.get("id")).longValue();
@@ -46,11 +46,16 @@ public class UserController {
             boolean isAdmin = "admin".equalsIgnoreCase(requesterUsername);
 
             Long targetId = id == null ? requesterId : id;
-            if (!isAdmin && !requesterId.equals(targetId)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
-            }
             User u = userService.getById(targetId);
-            if (u == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found"));
+            if (!isAdmin && !requesterId.equals(targetId)) {
+                // 普通用户只能查看有限的信息
+                u.setEmail(null);
+                u.setPhone(null);
+                u.setStatus(null);
+                u.setCreateTime(null);
+            }
+            if (u == null)
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found"));
             return ResponseEntity.ok(u);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
@@ -67,8 +72,8 @@ public class UserController {
      */
     @PutMapping("/update")
     public ResponseEntity<?> update(@RequestHeader(value = "Authorization", required = false) String auth,
-                                    @RequestParam(value = "targetId", required = false) Long targetId,
-                                    @RequestBody User update) {
+            @RequestParam(value = "targetId", required = false) Long targetId,
+            @RequestBody User update) {
         try {
             Claims claims = parseAuth(auth);
             Long requesterId = ((Number) claims.get("id")).longValue();
