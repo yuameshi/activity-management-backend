@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -47,12 +48,13 @@ public class RegistrationController {
 
     @GetMapping("/{activityId}")
     public ResponseEntity<?> getSelfRegistration(@RequestHeader(value = "Authorization", required = false) String auth,
-                                                 @PathVariable Long activityId) {
+            @PathVariable Long activityId) {
         try {
             Claims claims = parseAuth(auth);
             Long requesterId = ((Number) claims.get("id")).longValue();
             Registration r = registrationService.getByUserAndActivity(requesterId, activityId);
-            if (r == null) return ResponseEntity.ok(Map.of("data", null));
+            if (r == null)
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("id", null));
             return ResponseEntity.ok(r);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
@@ -63,7 +65,7 @@ public class RegistrationController {
 
     @PostMapping("/check/{activityId}")
     public ResponseEntity<?> checkRegistered(@RequestHeader(value = "Authorization", required = false) String auth,
-                                             @PathVariable Long activityId) {
+            @PathVariable Long activityId) {
         try {
             Claims claims = parseAuth(auth);
             Long requesterId = ((Number) claims.get("id")).longValue();
@@ -78,8 +80,8 @@ public class RegistrationController {
 
     @PostMapping("/{activityId}/apply")
     public ResponseEntity<?> apply(@RequestHeader(value = "Authorization", required = false) String auth,
-                                   @PathVariable Long activityId,
-                                   @RequestBody(required = false) Registration body) {
+            @PathVariable Long activityId,
+            @RequestBody(required = false) Registration body) {
         try {
             Claims claims = parseAuth(auth);
             Long requesterId = ((Number) claims.get("id")).longValue();
@@ -94,7 +96,8 @@ public class RegistrationController {
             Registration reg = new Registration();
             reg.setUserId(userId);
             reg.setActivityId(activityId);
-            if (body != null && body.getStatus() != null) reg.setStatus(body.getStatus());
+            if (body != null && body.getStatus() != null)
+                reg.setStatus(body.getStatus());
             int res = registrationService.createRegistration(reg);
             boolean applied = res > 0;
             if (!applied) {
@@ -114,7 +117,7 @@ public class RegistrationController {
 
     @DeleteMapping("/cancel/{id}")
     public ResponseEntity<?> cancel(@RequestHeader(value = "Authorization", required = false) String auth,
-                                    @PathVariable Long id) {
+            @PathVariable Long id) {
         try {
             Claims claims = parseAuth(auth);
             Long requesterId = ((Number) claims.get("id")).longValue();
@@ -137,7 +140,8 @@ public class RegistrationController {
                     cancelled = true;
                 } else {
                     Registration now = registrationService.getById(id);
-                    if (now == null) cancelled = true;
+                    if (now == null)
+                        cancelled = true;
                 }
             }
             return ResponseEntity.ok(Map.of("cancelled", cancelled));
@@ -150,7 +154,7 @@ public class RegistrationController {
 
     @GetMapping("/{activityId}/list-applications")
     public ResponseEntity<?> listByActivity(@RequestHeader(value = "Authorization", required = false) String auth,
-                                            @PathVariable Long activityId) {
+            @PathVariable Long activityId) {
         try {
             Claims claims = parseAuth(auth);
             String requesterUsername = (String) claims.get("username");
@@ -169,7 +173,7 @@ public class RegistrationController {
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@RequestHeader(value = "Authorization", required = false) String auth,
-                                    @PathVariable Long id) {
+            @PathVariable Long id) {
         try {
             Claims claims = parseAuth(auth);
             String requesterUsername = (String) claims.get("username");
@@ -182,7 +186,8 @@ public class RegistrationController {
             if (!cancelled) {
                 // 若未删除成功，二次确认记录是否已不存在
                 Registration now = registrationService.getById(id);
-                if (now == null) cancelled = true;
+                if (now == null)
+                    cancelled = true;
             }
             return ResponseEntity.ok(Map.of("cancelled", cancelled));
         } catch (IllegalArgumentException ex) {

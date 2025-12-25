@@ -22,7 +22,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * RegistrationController 单元测试：使用 standalone MockMvcBuilders 并手动 mock RegistrationService。
+ * RegistrationController 单元测试：使用 standalone MockMvcBuilders 并手动 mock
+ * RegistrationService。
  */
 class RegistrationControllerTest {
 
@@ -53,8 +54,8 @@ class RegistrationControllerTest {
         when(registrationService.getByUserAndActivity(5L, 10L)).thenReturn(r);
 
         mockMvc.perform(get("/api/registration/10")
-                        .header("Authorization", bearerToken(5L, "user5"))
-                        .accept(MediaType.APPLICATION_JSON))
+                .header("Authorization", bearerToken(5L, "user5"))
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(r)));
 
@@ -66,9 +67,9 @@ class RegistrationControllerTest {
         when(registrationService.getByUserAndActivity(99L, 20L)).thenReturn(null);
 
         mockMvc.perform(get("/api/registration/20")
-                        .header("Authorization", bearerToken(99L, "u99")))
-                .andExpect(status().isOk())
-                .andExpect(content().string(""));
+                .header("Authorization", bearerToken(99L, "u99")))
+                .andExpect(status().isNotFound())
+                .andExpect(content().json("{\"id\":null}"));
 
         verify(registrationService).getByUserAndActivity(99L, 20L);
     }
@@ -78,7 +79,7 @@ class RegistrationControllerTest {
         when(registrationService.isRegistered(6L, 11L)).thenReturn(true);
 
         mockMvc.perform(post("/api/registration/check/11")
-                        .header("Authorization", bearerToken(6L, "user6")))
+                .header("Authorization", bearerToken(6L, "user6")))
                 .andExpect(status().isOk())
                 .andExpect(content().string("true"));
 
@@ -90,9 +91,9 @@ class RegistrationControllerTest {
         when(registrationService.createRegistration(any())).thenReturn(1);
 
         mockMvc.perform(post("/api/registration/12/apply")
-                        .header("Authorization", bearerToken(7L, "user7"))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(null)))
+                .header("Authorization", bearerToken(7L, "user7"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(null)))
                 .andExpect(status().isOk())
                 .andExpect(content().string("{\"applied\":true}"));
 
@@ -109,9 +110,9 @@ class RegistrationControllerTest {
         body.setUserId(20L);
 
         mockMvc.perform(post("/api/registration/15/apply")
-                        .header("Authorization", bearerToken(100L, "admin"))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
+                .header("Authorization", bearerToken(100L, "admin"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
                 .andExpect(status().isOk())
                 .andExpect(content().string("{\"applied\":true}"));
 
@@ -130,7 +131,7 @@ class RegistrationControllerTest {
         when(registrationService.deleteById(3L)).thenReturn(1);
 
         mockMvc.perform(delete("/api/registration/cancel/3")
-                        .header("Authorization", bearerToken(7L, "user7")))
+                .header("Authorization", bearerToken(7L, "user7")))
                 .andExpect(status().isOk())
                 .andExpect(content().string("{\"cancelled\":true}"));
 
@@ -145,7 +146,7 @@ class RegistrationControllerTest {
         when(registrationService.getById(4L)).thenReturn(target);
 
         mockMvc.perform(delete("/api/registration/cancel/4")
-                        .header("Authorization", bearerToken(8L, "user8")))
+                .header("Authorization", bearerToken(8L, "user8")))
                 .andExpect(status().isForbidden());
 
         verify(registrationService, never()).deleteById(anyLong());
@@ -162,8 +163,8 @@ class RegistrationControllerTest {
         when(registrationService.listByActivityId(30L)).thenReturn(List.of(a, b));
 
         mockMvc.perform(get("/api/registration/30/list-applications")
-                        .header("Authorization", bearerToken(200L, "admin"))
-                        .accept(MediaType.APPLICATION_JSON))
+                .header("Authorization", bearerToken(200L, "admin"))
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(List.of(a, b))));
     }
@@ -173,7 +174,7 @@ class RegistrationControllerTest {
         when(registrationService.deleteById(5L)).thenReturn(1);
 
         mockMvc.perform(delete("/api/registration/delete/5")
-                        .header("Authorization", bearerToken(300L, "admin")))
+                .header("Authorization", bearerToken(300L, "admin")))
                 .andExpect(status().isOk())
                 .andExpect(content().string("{\"cancelled\":true}"));
 
@@ -183,7 +184,7 @@ class RegistrationControllerTest {
     @Test
     void delete_forbidden_forNonAdmin() throws Exception {
         mockMvc.perform(delete("/api/registration/delete/6")
-                        .header("Authorization", bearerToken(9L, "user9")))
+                .header("Authorization", bearerToken(9L, "user9")))
                 .andExpect(status().isForbidden());
         verify(registrationService, never()).deleteById(anyLong());
     }
