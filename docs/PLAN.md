@@ -186,6 +186,7 @@ usecase
 ### 5.2 活动相关
 
 -   GET /api/activity/list 活动列表
+-   GET /api/activity/search 搜索活动
 -   GET /api/activity/{id} 活动详情
 -   POST /api/activity/create 创建活动
 -   PUT /api/activity/update/{id} 编辑活动
