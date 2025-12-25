@@ -72,8 +72,8 @@ class ActivityControllerTest {
         when(activityService.getById(99L)).thenReturn(null);
 
         mockMvc.perform(get("/api/activity/99"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(""));
+                .andExpect(status().isNotFound())
+                .andExpect(content().json("{\"data\":null}"));
 
         verify(activityService).getById(99L);
     }

@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
 
 /**
  * 活动控制器：列表/详情/创建/更新/删除/审核
@@ -50,7 +51,7 @@ public class ActivityController {
             return ResponseEntity.badRequest().body(Map.of("error", "id is required"));
         Activity r = activityService.getById(id);
         if (r == null)
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("data", null));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("data", null));
         return ResponseEntity.ok(r);
     }
 
