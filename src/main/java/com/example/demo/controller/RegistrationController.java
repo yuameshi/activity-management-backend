@@ -99,15 +99,13 @@ public class RegistrationController {
             if (body != null && body.getStatus() != null)
                 reg.setStatus(body.getStatus());
             int res = registrationService.createRegistration(reg);
-            boolean applied = res > 0;
-            if (!applied) {
-                // 若 service 返回 0，可能是已有有效报名；再次查询确认并视为已报名
+            if (res > 0) {
                 Registration exist = registrationService.getByUserAndActivity(userId, activityId);
-                if (exist != null && exist.getStatus() != null && exist.getStatus() != 0) {
-                    applied = true;
-                }
+                return ResponseEntity.ok(exist);
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Map.of("error", "failed to create registration"));
             }
-            return ResponseEntity.ok(Map.of("applied", applied));
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
         } catch (Exception ex) {
