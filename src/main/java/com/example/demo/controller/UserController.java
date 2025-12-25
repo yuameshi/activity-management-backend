@@ -40,26 +40,26 @@ public class UserController {
     public ResponseEntity<?> info(@RequestHeader(value = "Authorization", required = false) String auth,
             @RequestParam(value = "id", required = false) Long id) {
         try {
+            System.out.println("[info] called, id=" + id);
             Claims claims = parseAuth(auth);
             Long requesterId = ((Number) claims.get("id")).longValue();
             String requesterUsername = (String) claims.get("username");
             boolean isAdmin = "admin".equalsIgnoreCase(requesterUsername);
 
             Long targetId = id == null ? requesterId : id;
-            User u = userService.getById(targetId);
             if (!isAdmin && !requesterId.equals(targetId)) {
-                // 普通用户只能查看有限的信息
-                u.setEmail(null);
-                u.setPhone(null);
-                u.setStatus(null);
-                u.setCreateTime(null);
+                System.out.println("[info] forbidden: requesterId=" + requesterId + ", targetId=" + targetId);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
             }
+            User u = userService.getById(targetId);
             if (u == null)
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found"));
             return ResponseEntity.ok(u);
         } catch (IllegalArgumentException ex) {
+            System.out.println("[info] IllegalArgumentException: " + ex.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
         } catch (Exception ex) {
+            System.out.println("[info] Exception: " + ex.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", ex.getMessage()));
         }
     }
