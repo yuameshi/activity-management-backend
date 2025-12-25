@@ -1,17 +1,22 @@
 package com.example.demo.mapper;
 
-@org.apache.ibatis.annotations.Mapper
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import com.example.demo.model.Activity;
+
+@Mapper
 public interface ActivityMapper {
 
     int insertActivity(com.example.demo.model.Activity activity);
 
-    com.example.demo.model.Activity findById(@org.apache.ibatis.annotations.Param("id") Long id);
+    Activity findById(@Param("id") Long id);
 
-    java.util.List<com.example.demo.model.Activity> findAll();
+    java.util.List<Activity> findAll();
 
-    java.util.List<com.example.demo.model.Activity> findByPublisherId(@org.apache.ibatis.annotations.Param("publisherId") Long publisherId);
+    java.util.List<Activity> findByPublisherId(@Param("publisherId") Long publisherId);
 
-    int updateActivity(com.example.demo.model.Activity activity);
+    int updateActivity(Activity activity);
 
-    int deleteById(@org.apache.ibatis.annotations.Param("id") Long id);
+    int deleteById(@Param("id") Long id);
 }

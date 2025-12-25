@@ -1,6 +1,8 @@
 package com.example.demo.service;
 
 import com.example.demo.mapper.ActivityMapper;
+import com.example.demo.model.Activity;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,8 +29,9 @@ public class ActivityService {
      * @param activity 活动实体
      * @return 受影响行数
      */
-    public int createActivity(com.example.demo.model.Activity activity) {
-        if (activity == null) return 0;
+    public int createActivity(Activity activity) {
+        if (activity == null)
+            return 0;
         if (activity.getCreateTime() == null) {
             activity.setCreateTime(LocalDateTime.now());
         }
@@ -41,8 +44,9 @@ public class ActivityService {
      * @param id 活动 id
      * @return 活动或 null
      */
-    public com.example.demo.model.Activity getById(Long id) {
-        if (id == null) return null;
+    public Activity getById(Long id) {
+        if (id == null)
+            return null;
         return activityMapper.findById(id);
     }
 
@@ -51,8 +55,8 @@ public class ActivityService {
      *
      * @return 活动列表（可能为空）
      */
-    public java.util.List<com.example.demo.model.Activity> getAll() {
-        List<com.example.demo.model.Activity> all = activityMapper.findAll();
+    public List<Activity> getAll() {
+        List<Activity> all = activityMapper.findAll();
         return all == null ? new ArrayList<>() : all;
     }
 
@@ -62,9 +66,10 @@ public class ActivityService {
      * @param publisherId 发布者 id
      * @return 活动列表（可能为空）
      */
-    public java.util.List<com.example.demo.model.Activity> getByPublisherId(Long publisherId) {
-        if (publisherId == null) return new ArrayList<>();
-        List<com.example.demo.model.Activity> list = activityMapper.findByPublisherId(publisherId);
+    public List<Activity> getByPublisherId(Long publisherId) {
+        if (publisherId == null)
+            return new ArrayList<>();
+        List<Activity> list = activityMapper.findByPublisherId(publisherId);
         return list == null ? new ArrayList<>() : list;
     }
 
@@ -74,8 +79,9 @@ public class ActivityService {
      * @param activity 活动实体
      * @return 受影响行数
      */
-    public int updateActivity(com.example.demo.model.Activity activity) {
-        if (activity == null) return 0;
+    public int updateActivity(Activity activity) {
+        if (activity == null)
+            return 0;
         return activityMapper.updateActivity(activity);
     }
 
@@ -86,7 +92,8 @@ public class ActivityService {
      * @return 受影响行数
      */
     public int deleteById(Long id) {
-        if (id == null) return 0;
+        if (id == null)
+            return 0;
         return activityMapper.deleteById(id);
     }
 
@@ -98,9 +105,11 @@ public class ActivityService {
      * @return updateActivity 的返回值或 0
      */
     public int auditActivity(Long id, Byte status) {
-        if (id == null) return 0;
-        com.example.demo.model.Activity activity = activityMapper.findById(id);
-        if (activity == null) return 0;
+        if (id == null)
+            return 0;
+        Activity activity = activityMapper.findById(id);
+        if (activity == null)
+            return 0;
         activity.setStatus(status);
         return updateActivity(activity);
     }

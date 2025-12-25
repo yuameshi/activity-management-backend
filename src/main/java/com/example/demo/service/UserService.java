@@ -37,7 +37,7 @@ public class UserService {
         String hashed = passwordEncoder.encode(user.getPassword());
         user.setPassword(hashed);
         if (user.getStatus() == null) {
-            user.setStatus((byte)1);
+            user.setStatus((byte) 1);
         }
         user.setCreateTime(LocalDateTime.now());
         userMapper.insertUser(user);
@@ -86,9 +86,11 @@ public class UserService {
      * 根据 id 获取用户（安全视图：不返回密码）
      */
     public User getById(Long id) {
-        if (id == null) throw new IllegalArgumentException("id required");
+        if (id == null)
+            throw new IllegalArgumentException("id required");
         User u = userMapper.findById(id);
-        if (u == null) return null;
+        if (u == null)
+            return null;
         User safe = new User();
         safe.setId(u.getId());
         safe.setUsername(u.getUsername());
@@ -107,7 +109,8 @@ public class UserService {
     public List<User> listUsers() {
         List<User> all = userMapper.findAll();
         List<User> out = new ArrayList<>();
-        if (all == null) return out;
+        if (all == null)
+            return out;
         for (User u : all) {
             User safe = new User();
             safe.setId(u.getId());
@@ -140,10 +143,14 @@ public class UserService {
             throw new IllegalArgumentException("forbidden: only admin or owner can modify");
         }
         // apply allowed updates
-        if (update.getRealName() != null) target.setRealName(update.getRealName());
-        if (update.getEmail() != null) target.setEmail(update.getEmail());
-        if (update.getPhone() != null) target.setPhone(update.getPhone());
-        if (update.getAvatar() != null) target.setAvatar(update.getAvatar());
+        if (update.getRealName() != null)
+            target.setRealName(update.getRealName());
+        if (update.getEmail() != null)
+            target.setEmail(update.getEmail());
+        if (update.getPhone() != null)
+            target.setPhone(update.getPhone());
+        if (update.getAvatar() != null)
+            target.setAvatar(update.getAvatar());
         if (update.getStatus() != null && isAdmin) {
             // only admin can change status
             target.setStatus(update.getStatus());

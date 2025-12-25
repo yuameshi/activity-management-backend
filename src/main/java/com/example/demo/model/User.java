@@ -17,7 +17,8 @@ public class User {
     public User() {
     }
 
-    public User(Long id, String username, String password, String realName, String email, String phone, String avatar, Byte status, LocalDateTime createTime) {
+    public User(Long id, String username, String password, String realName, String email, String phone, String avatar,
+            Byte status, LocalDateTime createTime) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -103,8 +104,10 @@ public class User {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         User user = (User) o;
         return Objects.equals(id, user.id) &&

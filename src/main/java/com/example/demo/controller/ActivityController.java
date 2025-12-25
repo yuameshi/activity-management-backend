@@ -1,10 +1,21 @@
 package com.example.demo.controller;
 
+import com.example.demo.model.Activity;
 import com.example.demo.service.ActivityService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
+
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,7 +34,7 @@ public class ActivityController {
      * @return 活动列表
      */
     @GetMapping("/list")
-    public java.util.List<com.example.demo.model.Activity> list() {
+    public List<Activity> list() {
         return activityService.getAll();
     }
 
@@ -34,10 +45,12 @@ public class ActivityController {
      * @return 活动或 null（若 id 为 null 或不存在）
      */
     @GetMapping("/{id}")
-    public ResponseEntity<?> get(@org.springframework.web.bind.annotation.PathVariable Long id) {
-        if (id == null) return ResponseEntity.badRequest().body(Map.of("error", "id is required"));
-        com.example.demo.model.Activity r = activityService.getById(id);
-        if (r == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("data", null));
+    public ResponseEntity<?> get(@PathVariable Long id) {
+        if (id == null)
+            return ResponseEntity.badRequest().body(Map.of("error", "id is required"));
+        Activity r = activityService.getById(id);
+        if (r == null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("data", null));
         return ResponseEntity.ok(r);
     }
 
@@ -48,8 +61,9 @@ public class ActivityController {
      * @return 受影响行数
      */
     @PostMapping("/create")
-    public ResponseEntity<?> create(@org.springframework.web.bind.annotation.RequestBody com.example.demo.model.Activity activity) {
-        if (activity == null) return ResponseEntity.badRequest().body(Map.of("affected", 0));
+    public ResponseEntity<?> create(@RequestBody Activity activity) {
+        if (activity == null)
+            return ResponseEntity.badRequest().body(Map.of("affected", 0));
         int res = activityService.createActivity(activity);
         return ResponseEntity.ok(Map.of("affected", res));
     }
@@ -62,9 +76,10 @@ public class ActivityController {
      * @return 受影响行数
      */
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> update(@org.springframework.web.bind.annotation.PathVariable Long id,
-                                    @org.springframework.web.bind.annotation.RequestBody com.example.demo.model.Activity activity) {
-        if (id == null || activity == null) return ResponseEntity.badRequest().body(Map.of("affected", 0));
+    public ResponseEntity<?> update(@PathVariable Long id,
+            @RequestBody Activity activity) {
+        if (id == null || activity == null)
+            return ResponseEntity.badRequest().body(Map.of("affected", 0));
         activity.setId(id);
         int res = activityService.updateActivity(activity);
         return ResponseEntity.ok(Map.of("affected", res));
@@ -77,8 +92,9 @@ public class ActivityController {
      * @return 受影响行数
      */
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> delete(@org.springframework.web.bind.annotation.PathVariable Long id) {
-        if (id == null) return ResponseEntity.badRequest().body(Map.of("affected", 0));
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        if (id == null)
+            return ResponseEntity.badRequest().body(Map.of("affected", 0));
         int res = activityService.deleteById(id);
         return ResponseEntity.ok(Map.of("affected", res));
     }
@@ -91,9 +107,10 @@ public class ActivityController {
      * @return 受影响行数
      */
     @PostMapping("/audit/{id}")
-    public ResponseEntity<?> audit(@org.springframework.web.bind.annotation.PathVariable Long id,
-                                   @org.springframework.web.bind.annotation.RequestParam Byte status) {
-        if (id == null || status == null) return ResponseEntity.badRequest().body(Map.of("affected", 0));
+    public ResponseEntity<?> audit(@PathVariable Long id,
+            @RequestParam Byte status) {
+        if (id == null || status == null)
+            return ResponseEntity.badRequest().body(Map.of("affected", 0));
         int res = activityService.auditActivity(id, status);
         return ResponseEntity.ok(Map.of("affected", res));
     }
