@@ -96,4 +96,18 @@ public class ActivityService {
             return 0;
         return activityMapper.deleteById(id);
     }
+
+    /**
+     * 根据标题模糊搜索活动
+     * 
+     * @param title 标题关键字
+     * @return 活动列表
+     */
+    public List<Activity> searchByTitle(String title) {
+        if (title == null || title.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<Activity> list = activityMapper.searchByTitle(title);
+        return list == null ? new ArrayList<>() : list;
+    }
 }

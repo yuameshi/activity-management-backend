@@ -49,4 +49,9 @@
     DELETE FROM activity WHERE id = #{id}
   </delete>
 
+  <select id="searchByTitle" parameterType="string" resultMap="ActivityResultMap">
+    SELECT * FROM activity
+    WHERE title LIKE CONCAT('%', #{title}, '%')
+    ORDER BY create_time DESC
+  </select>
 </mapper>

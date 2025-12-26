@@ -98,4 +98,15 @@ public class ActivityController {
         int res = activityService.deleteById(id);
         return ResponseEntity.ok(Map.of("affected", res));
     }
+
+    /**
+     * 根据标题模糊搜索活动
+     * 
+     * @param title 标题关键字
+     * @return 活动列表
+     */
+    @GetMapping("/search")
+    public List<Activity> searchByTitle(String title) {
+        return activityService.searchByTitle(title);
+    }
 }
