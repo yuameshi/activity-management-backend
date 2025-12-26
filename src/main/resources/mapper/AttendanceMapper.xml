@@ -43,4 +43,15 @@
             AND status = #{status}
         </if>
     </select>
+    <!-- 根据ID删除签到记录 -->
+    <delete id="deleteAttendanceById" parameterType="long">
+        DELETE FROM attendance WHERE id = #{id}
+    </delete>
+    <!-- 根据用户ID和活动ID查找签到记录 -->
+    <select id="findByUserIdAndActivityId" resultMap="AttendanceResultMap">
+        SELECT id, activity_id, user_id, sign_time, sign_type
+        FROM attendance
+        WHERE user_id = #{userId} AND activity_id = #{activityId}
+        LIMIT 1
+    </select>
 </mapper>

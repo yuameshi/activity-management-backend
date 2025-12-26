@@ -38,4 +38,17 @@ public interface AttendanceMapper {
      * @return 签到记录列表
      */
     List<Attendance> findByActivityIdAndStatus(@Param("activityId") Long activityId, @Param("status") String status);
+    /**
+     * 根据ID删除签到记录
+     * @param id 签到记录ID
+     * @return 受影响行数
+     */
+    int deleteAttendanceById(@Param("id") Long id);
+    /**
+     * 根据用户ID和活动ID查找签到记录
+     * @param userId 用户ID
+     * @param activityId 活动ID
+     * @return 签到记录
+     */
+    Attendance findByUserIdAndActivityId(@Param("userId") Long userId, @Param("activityId") Long activityId);
 }

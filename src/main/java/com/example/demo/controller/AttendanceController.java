@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -106,7 +107,7 @@ public class AttendanceController {
             attendenceCopy.put("activityId", attendance.getActivityId());
             attendenceCopy.put("userId", attendance.getUserId());
             attendenceCopy.put("signTime", attendance.getSignTime());
-            User user = userService.getById(attendance.getUserId()) ;
+            User user = userService.getById(attendance.getUserId());
             attendenceCopy.put("username", user.getUsername());
             attendenceCopy.put("userRealName", user.getRealName());
             attendanceListReturn.add(attendenceCopy);
@@ -242,11 +243,9 @@ public class AttendanceController {
         Boolean isAdmin = claims.get("isAdmin", Boolean.class);
 
         Long signUserId = jwtUserId;
-        if (isAdmin != null && isAdmin) {
-            signUserId = req.userId;
-        } else {
-            if (req.userId != null && !req.userId.equals(jwtUserId))
-                return ResponseEntity.status(403).body(error(403, "无权为他人签到"));
+        // 只允许给自己签到，包括管理员
+        if (req.userId != null && !req.userId.equals(jwtUserId)) {
+            return ResponseEntity.status(403).body(error(403, "无权为他人签到"));
         }
         if (!"QR".equals(req.signType) && !"MANUAL".equals(req.signType)) {
             return ResponseEntity.badRequest()
@@ -284,6 +283,88 @@ public class AttendanceController {
             return org.springframework.http.ResponseEntity.ok(ok(java.util.Map.of("message", "签到成功", "act", act)));
         } else {
             return org.springframework.http.ResponseEntity.status(500).body(error(500, "签到失败"));
+        }
+    }
+
+    /**
+     * 管理员新增签到记录
+     */
+    @PostMapping("/add")
+    public ResponseEntity<Object> adminAddAttendance(@RequestBody Attendance attendance, HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(error(401, "未提供有效的 JWT"));
+        }
+        String token = authHeader.substring(7);
+        Claims claims;
+        try {
+            claims = JwtUtil.parseToken(token);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(error(401, "JWT 无效"));
+        }
+        Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+        if (isAdmin == null || !isAdmin) {
+            return ResponseEntity.status(403).body(error(403, "仅管理员可操作"));
+        }
+        Attendance createdAttendance = attendanceService.getByUserIdAndActivityId(attendance.getUserId(),
+                attendance.getActivityId());
+        if (createdAttendance == null) {
+            attendanceService.createAttendance(attendance);
+            createdAttendance = attendanceService.getByUserIdAndActivityId(attendance.getUserId(),
+                    attendance.getActivityId());
+            if (createdAttendance == null) {
+                return ResponseEntity.status(500).body(error(500, "添加失败"));
+            } else {
+                Map<String, Object> responseData = new HashMap<>();
+                responseData.put("id", createdAttendance.getId());
+                responseData.put("activityId", createdAttendance.getActivityId());
+                responseData.put("userId", createdAttendance.getUserId());
+                responseData.put("signTime", createdAttendance.getSignTime());
+                User user = userService.getById(createdAttendance.getUserId());
+                responseData.put("username", user.getUsername());
+                responseData.put("userRealName", user.getRealName());
+                responseData.put("userAvatar", user.getAvatar());
+                return ResponseEntity.ok(ok(responseData));
+            }
+        } else {
+            Map<String, Object> responseData = new HashMap<>();
+            responseData.put("id", createdAttendance.getId());
+            responseData.put("activityId", createdAttendance.getActivityId());
+            responseData.put("userId", createdAttendance.getUserId());
+            responseData.put("signTime", createdAttendance.getSignTime());
+            User user = userService.getById(createdAttendance.getUserId());
+            responseData.put("username", user.getUsername());
+            responseData.put("userRealName", user.getRealName());
+                responseData.put("userAvatar", user.getAvatar());
+            return ResponseEntity.ok(ok(responseData));
+        }
+    }
+
+    /**
+     * 管理员删除签到记录
+     */
+    @DeleteMapping("/delete")
+    public ResponseEntity<Object> adminDeleteAttendance(@RequestParam Long id, HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(error(401, "未提供有效的 JWT"));
+        }
+        String token = authHeader.substring(7);
+        Claims claims;
+        try {
+            claims = JwtUtil.parseToken(token);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(error(401, "JWT 无效"));
+        }
+        Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+        if (isAdmin == null || !isAdmin) {
+            return ResponseEntity.status(403).body(error(403, "仅管理员可操作"));
+        }
+        int rows = attendanceService.deleteAttendanceById(id);
+        if (rows > 0) {
+            return ResponseEntity.ok(ok("签到记录删除成功"));
+        } else {
+            return ResponseEntity.status(404).body(error(404, "记录不存在或删除失败"));
         }
     }
 

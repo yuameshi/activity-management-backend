@@ -70,4 +70,24 @@ public class AttendanceService {
         List<Attendance> list = attendanceMapper.findByActivityIdAndStatus(activityId, status);
         return list == null ? new ArrayList<>() : list;
     }
+    /**
+     * 根据用户ID和活动ID查找签到记录
+     * @param userId 用户ID
+     * @param activityId 活动ID
+     * @return 签到记录，若无则返回null
+     */
+    public Attendance getByUserIdAndActivityId(Long userId, Long activityId) {
+        if (userId == null || activityId == null) return null;
+        return attendanceMapper.findByUserIdAndActivityId(userId, activityId);
+    }
+
+    /**
+     * 根据ID删除签到记录
+     * @param id 签到记录ID
+     * @return 受影响行数
+     */
+    public int deleteAttendanceById(Long id) {
+        if (id == null) return 0;
+        return attendanceMapper.deleteAttendanceById(id);
+    }
 }
