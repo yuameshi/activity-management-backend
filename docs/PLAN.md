@@ -191,7 +191,6 @@ usecase
 -   POST /api/activity/create 创建活动
 -   PUT /api/activity/update/{id} 编辑活动
 -   DELETE /api/activity/delete/{id} 删除活动
--   POST /api/activity/audit/{id} 审核活动
 
 ### 5.3 报名与签到
 

@@ -126,16 +126,4 @@ class ActivityControllerTest {
 
         verify(activityService).deleteById(7L);
     }
-
-    // f) POST /api/activity/audit/{id}?status=1 -> 断言调用 service.auditActivity 并返回预期值。
-    @Test
-    void audit_callsService_andReturnsValue() throws Exception {
-        when(activityService.auditActivity(8L, (byte)1)).thenReturn(1);
-
-        mockMvc.perform(post("/api/activity/audit/8").param("status", "1"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("{\"affected\":1}"));
-
-        verify(activityService).auditActivity(8L, (byte)1);
-    }
 }

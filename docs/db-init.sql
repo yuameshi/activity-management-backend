@@ -20,7 +20,6 @@ CREATE TABLE activity (
   start_time DATETIME,
   end_time DATETIME,
   publisher_id BIGINT,
-  status TINYINT DEFAULT 0,
   create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (publisher_id) REFERENCES user(id)
 );

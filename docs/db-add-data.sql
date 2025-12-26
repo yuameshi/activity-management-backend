@@ -16,9 +16,9 @@ INSERT INTO user_role (user_id, role_id) VALUES
 (3, 2);
 
 -- 活动表
-INSERT INTO activity (title, description, location, start_time, end_time, publisher_id, status) VALUES
-('迎新晚会', '2025年迎新晚会，欢迎新同学！', '大礼堂', '2025-09-01 19:00:00', '2025-09-01 21:00:00', 1, 1),
-('编程马拉松', '24小时编程挑战赛', '实验楼A101', '2025-10-15 08:00:00', '2025-10-16 08:00:00', 1, 1);
+INSERT INTO activity (title, description, location, start_time, end_time, publisher_id) VALUES
+('迎新晚会', '2025年迎新晚会，欢迎新同学！', '大礼堂', '2025-09-01 19:00:00', '2025-09-01 21:00:00', 1),
+('编程马拉松', '24小时编程挑战赛', '实验楼A101', '2025-10-15 08:00:00', '2025-10-16 08:00:00', 1);
 
 -- 报名表
 INSERT INTO registration (user_id, activity_id, register_time, status) VALUES

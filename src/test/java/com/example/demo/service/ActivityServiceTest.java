@@ -131,33 +131,4 @@ class ActivityServiceTest {
         assertEquals(1, res);
         verify(activityMapper).deleteById(7L);
     }
-
-    // f) auditActivity：当 id 存在时设置 status 并 update；当 id 不存在返回 0。
-    @Test
-    void auditActivity_whenNotFound_returnsZero() {
-        when(activityMapper.findById(100L)).thenReturn(null);
-
-        int res = activityService.auditActivity(100L, (byte)1);
-
-        assertEquals(0, res);
-        verify(activityMapper).findById(100L);
-        verify(activityMapper, never()).updateActivity(any());
-    }
-
-    @Test
-    void auditActivity_whenFound_setsStatus_and_updates() {
-        Activity a = new Activity();
-        a.setId(20L);
-        a.setStatus((byte)0);
-        when(activityMapper.findById(20L)).thenReturn(a);
-        when(activityMapper.updateActivity(any())).thenReturn(1);
-
-        int res = activityService.auditActivity(20L, (byte)1);
-
-        assertEquals(1, res);
-        ArgumentCaptor<Activity> captor = ArgumentCaptor.forClass(Activity.class);
-        verify(activityMapper).updateActivity(captor.capture());
-        Activity updated = captor.getValue();
-        assertEquals((byte)1, updated.getStatus());
-    }
 }

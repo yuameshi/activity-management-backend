@@ -20,7 +20,6 @@ public class Activity {
     private LocalDateTime endTime;
 
     private Long publisherId;
-    private Byte status;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
@@ -84,14 +83,6 @@ public class Activity {
         this.publisherId = publisherId;
     }
 
-    public Byte getStatus() {
-        return status;
-    }
-
-    public void setStatus(Byte status) {
-        this.status = status;
-    }
-
     public LocalDateTime getCreateTime() {
         return createTime;
     }
@@ -110,7 +101,6 @@ public class Activity {
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 ", publisherId=" + publisherId +
-                ", status=" + status +
                 ", createTime=" + createTime +
                 '}';
     }

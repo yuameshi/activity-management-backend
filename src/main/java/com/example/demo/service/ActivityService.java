@@ -96,21 +96,4 @@ public class ActivityService {
             return 0;
         return activityMapper.deleteById(id);
     }
-
-    /**
-     * 审核活动：设置状态并更新。若活动不存在返回 0。
-     *
-     * @param id     活动 id
-     * @param status 新状态
-     * @return updateActivity 的返回值或 0
-     */
-    public int auditActivity(Long id, Byte status) {
-        if (id == null)
-            return 0;
-        Activity activity = activityMapper.findById(id);
-        if (activity == null)
-            return 0;
-        activity.setStatus(status);
-        return updateActivity(activity);
-    }
 }

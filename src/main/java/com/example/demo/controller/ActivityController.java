@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 
@@ -97,22 +96,6 @@ public class ActivityController {
         if (id == null)
             return ResponseEntity.badRequest().body(Map.of("affected", 0));
         int res = activityService.deleteById(id);
-        return ResponseEntity.ok(Map.of("affected", res));
-    }
-
-    /**
-     * 审核活动：设置状态并更新
-     *
-     * @param id     活动 id
-     * @param status 新状态
-     * @return 受影响行数
-     */
-    @PostMapping("/audit/{id}")
-    public ResponseEntity<?> audit(@PathVariable Long id,
-            @RequestParam Byte status) {
-        if (id == null || status == null)
-            return ResponseEntity.badRequest().body(Map.of("affected", 0));
-        int res = activityService.auditActivity(id, status);
         return ResponseEntity.ok(Map.of("affected", res));
     }
 }
