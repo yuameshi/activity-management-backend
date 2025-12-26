@@ -83,7 +83,6 @@ public class RegistrationController {
             @PathVariable Long activityId,
             @RequestBody(required = false) Registration body) {
         try {
-            System.out.println("[apply] called, activityId=" + activityId + ", body=" + body);
             Claims claims = parseAuth(auth);
             Long requesterId = ((Number) claims.get("id")).longValue();
             Boolean isAdmin = claims.get("isAdmin", Boolean.class);
@@ -99,19 +98,20 @@ public class RegistrationController {
             if (body != null && body.getStatus() != null)
                 reg.setStatus(body.getStatus());
             int res = registrationService.createRegistration(reg);
-            System.out.println("[apply] createRegistration result=" + res);
-            if (res > 0) {
-                // 只返回 {"applied": true}，以满足测试用例
-                return ResponseEntity.ok(Map.of("applied", true));
+            Registration result = registrationService.getByUserAndActivity(userId, activityId);
+            if (result != null) {
+                return ResponseEntity.ok(Map.of("applied", true, "registration", result));
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(Map.of("error", "failed to create registration"));
             }
         } catch (IllegalArgumentException ex) {
-            System.out.println("[apply] IllegalArgumentException: " + ex.getMessage());
+            System.err.println(ex.getMessage());
+            System.err.println(ex.getStackTrace());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
         } catch (Exception ex) {
-            System.out.println("[apply] Exception: " + ex.getMessage());
+            System.err.println(ex.getMessage());
+            System.err.println(ex.getStackTrace());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", ex.getMessage()));
         }
     }
