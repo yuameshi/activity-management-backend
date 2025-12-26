@@ -47,7 +47,7 @@
   </update>
 
   <select id="countAdminRoleByUserId" parameterType="long" resultType="int">
-    SELECT COUNT(*) FROM user_role WHERE user_id = #{userId} AND role_id = 1
+    SELECT role FROM user WHERE user_id = #{userId}
   </select>
   <delete id="deleteUserById" parameterType="long">
     DELETE FROM user WHERE id = #{id}

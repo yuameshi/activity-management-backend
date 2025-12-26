@@ -173,8 +173,8 @@ public class UserService {
             return false;
         }
         // 调用mapper方法查询
-        int count = userMapper.countAdminRoleByUserId(userId);
-        return count > 0;
+        int role = userMapper.countAdminRoleByUserId(userId);
+        return role == 0;
     }
     /**
      * 删除用户（仅管理员可用）
