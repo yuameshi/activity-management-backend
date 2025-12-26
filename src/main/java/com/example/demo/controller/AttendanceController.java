@@ -123,8 +123,8 @@ public class AttendanceController {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT 无效");
             return;
         }
-        Object uname = claims.get("username");
-        if (!"admin".equals(uname.toString())) {
+        Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+        if (isAdmin == null || !isAdmin) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "仅管理员可访问");
             return;
         }
@@ -216,17 +216,18 @@ public class AttendanceController {
             return org.springframework.http.ResponseEntity.status(401).body(error(401, "JWT 无效"));
         }
         Long jwtUserId = claims.get("id", Long.class);
-        String uname = claims.get("username", String.class);
+        Boolean isAdmin = claims.get("isAdmin", Boolean.class);
 
         Long signUserId = jwtUserId;
-        if ("admin".equals(uname)) {
+        if (isAdmin != null && isAdmin) {
             signUserId = req.userId;
         } else {
             if (req.userId != null && !req.userId.equals(jwtUserId))
                 return org.springframework.http.ResponseEntity.status(403).body(error(403, "无权为他人签到"));
         }
         if (!"QR".equals(req.signType) && !"MANUAL".equals(req.signType)) {
-            return org.springframework.http.ResponseEntity.badRequest().body(error(400, "签到方式 signType 必须为 QR 或 MANUAL"));
+            return org.springframework.http.ResponseEntity.badRequest()
+                    .body(error(400, "签到方式 signType 必须为 QR 或 MANUAL"));
         }
 
         Activity act = activityService.getById(req.activityId);
@@ -300,8 +301,8 @@ public class AttendanceController {
         } catch (Exception e) {
             return org.springframework.http.ResponseEntity.status(401).body(error(401, "JWT 无效"));
         }
-        Object uname = claims.get("username");
-        if (!"admin".equals(uname.toString())) {
+        Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+        if (isAdmin == null || !isAdmin) {
             return org.springframework.http.ResponseEntity.status(403).body(error(403, "仅管理员可访问"));
         }
         List<Attendance> list = attendanceService

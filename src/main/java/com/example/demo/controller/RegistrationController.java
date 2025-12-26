@@ -86,11 +86,10 @@ public class RegistrationController {
             System.out.println("[apply] called, activityId=" + activityId + ", body=" + body);
             Claims claims = parseAuth(auth);
             Long requesterId = ((Number) claims.get("id")).longValue();
-            String requesterUsername = (String) claims.get("username");
-            boolean isAdmin = "admin".equalsIgnoreCase(requesterUsername);
+            Boolean isAdmin = claims.get("isAdmin", Boolean.class);
 
             Long userId = requesterId;
-            if (isAdmin && body != null && body.getUserId() != null) {
+            if ((isAdmin != null && isAdmin) && body != null && body.getUserId() != null) {
                 userId = body.getUserId();
             }
 
@@ -123,15 +122,14 @@ public class RegistrationController {
         try {
             Claims claims = parseAuth(auth);
             Long requesterId = ((Number) claims.get("id")).longValue();
-            String requesterUsername = (String) claims.get("username");
-            boolean isAdmin = "admin".equalsIgnoreCase(requesterUsername);
+            Boolean isAdmin = claims.get("isAdmin", Boolean.class);
 
             Registration target = registrationService.getById(id);
             if (target == null) {
                 // 若数据库中不存在记录，视为已取消（幂等）
                 return ResponseEntity.ok(Map.of("cancelled", true));
             }
-            if (!isAdmin && !requesterId.equals(target.getUserId())) {
+            if ((isAdmin == null || !isAdmin) && !requesterId.equals(target.getUserId())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
             }
             int r = registrationService.deleteById(id);
@@ -159,9 +157,8 @@ public class RegistrationController {
             @PathVariable Long activityId) {
         try {
             Claims claims = parseAuth(auth);
-            String requesterUsername = (String) claims.get("username");
-            boolean isAdmin = "admin".equalsIgnoreCase(requesterUsername);
-            if (!isAdmin) {
+            Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+            if (isAdmin == null || !isAdmin) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
             }
             List<Registration> list = registrationService.listByActivityId(activityId);
@@ -178,9 +175,8 @@ public class RegistrationController {
             @PathVariable Long id) {
         try {
             Claims claims = parseAuth(auth);
-            String requesterUsername = (String) claims.get("username");
-            boolean isAdmin = "admin".equalsIgnoreCase(requesterUsername);
-            if (!isAdmin) {
+            Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+            if (isAdmin == null || !isAdmin) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
             }
             int r = registrationService.deleteById(id);

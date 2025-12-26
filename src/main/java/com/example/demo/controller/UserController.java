@@ -43,11 +43,10 @@ public class UserController {
             System.out.println("[info] called, id=" + id);
             Claims claims = parseAuth(auth);
             Long requesterId = ((Number) claims.get("id")).longValue();
-            String requesterUsername = (String) claims.get("username");
-            boolean isAdmin = "admin".equalsIgnoreCase(requesterUsername);
+            Boolean isAdmin = claims.get("isAdmin", Boolean.class);
 
             Long targetId = id == null ? requesterId : id;
-            if (!isAdmin && !requesterId.equals(targetId)) {
+            if ((isAdmin == null || !isAdmin) && !requesterId.equals(targetId)) {
                 System.out.println("[info] forbidden: requesterId=" + requesterId + ", targetId=" + targetId);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
             }
@@ -78,11 +77,11 @@ public class UserController {
             Claims claims = parseAuth(auth);
             Long requesterId = ((Number) claims.get("id")).longValue();
             String requesterUsername = (String) claims.get("username");
-            boolean isAdmin = "admin".equalsIgnoreCase(requesterUsername);
+            Boolean isAdmin = claims.get("isAdmin", Boolean.class);
             Long tid = targetId == null ? requesterId : targetId;
 
             // 前置权限校验：非管理员且非本人禁止修改 —— 使控制器在 service 未模拟抛异常时仍然能返回 403（满足单元测试预期）
-            if (!isAdmin && !requesterId.equals(tid)) {
+            if ((isAdmin == null || !isAdmin) && !requesterId.equals(tid)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
             }
 
@@ -111,9 +110,8 @@ public class UserController {
     public ResponseEntity<?> list(@RequestHeader(value = "Authorization", required = false) String auth) {
         try {
             Claims claims = parseAuth(auth);
-            String requesterUsername = (String) claims.get("username");
-            boolean isAdmin = "admin".equalsIgnoreCase(requesterUsername);
-            if (!isAdmin) {
+            Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+            if (isAdmin == null || !isAdmin) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
             }
             List<User> users = userService.listUsers();

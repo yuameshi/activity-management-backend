@@ -128,10 +128,6 @@ public class UserService {
         return out;
     }
 
-    /**
-     * 更新用户信息。仅允许管理员或用户本人修改。
-     * 简单 RBAC：用户名为 "admin" 的用户视为管理员。
-     */
     public User updateUser(Long requesterId, String requesterUsername, Long targetId, User update) {
         if (requesterId == null || requesterUsername == null || targetId == null || update == null) {
             throw new IllegalArgumentException("invalid parameters");
@@ -139,10 +135,6 @@ public class UserService {
         User target = userMapper.findById(targetId);
         if (target == null) {
             throw new IllegalArgumentException("user not found");
-        }
-        boolean isAdmin = "admin".equalsIgnoreCase(requesterUsername);
-        if (!isAdmin && !requesterId.equals(targetId)) {
-            throw new IllegalArgumentException("forbidden: only admin or owner can modify");
         }
         // apply allowed updates
         if (update.getRealName() != null)
@@ -153,7 +145,7 @@ public class UserService {
             target.setPhone(update.getPhone());
         if (update.getAvatar() != null)
             target.setAvatar(update.getAvatar());
-        if (update.getStatus() != null && isAdmin) {
+        if (update.getStatus() != null) {
             // only admin can change status
             target.setStatus(update.getStatus());
         }
