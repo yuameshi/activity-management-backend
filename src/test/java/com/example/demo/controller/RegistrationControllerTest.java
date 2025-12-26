@@ -93,13 +93,17 @@ class RegistrationControllerTest {
     @Test
     void apply_callsService_andReturnsValue() throws Exception {
         when(registrationService.createRegistration(any())).thenReturn(1);
+        Registration reg = new Registration();
+        reg.setUserId(7L);
+        reg.setActivityId(12L);
+        when(registrationService.getByUserAndActivity(7L, 12L)).thenReturn(reg);
 
         mockMvc.perform(post("/api/registration/12/apply")
                 .header("Authorization", bearerToken(7L, "user7"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(null)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("{\"applied\":true}"));
+                .andExpect(jsonPath("$.applied").value(true));
 
         ArgumentCaptor<Registration> captor = ArgumentCaptor.forClass(Registration.class);
         verify(registrationService).createRegistration(captor.capture());
@@ -112,13 +116,17 @@ class RegistrationControllerTest {
         when(registrationService.createRegistration(any())).thenReturn(1);
         Registration body = new Registration();
         body.setUserId(20L);
+        Registration reg = new Registration();
+        reg.setUserId(20L);
+        reg.setActivityId(15L);
+        when(registrationService.getByUserAndActivity(20L, 15L)).thenReturn(reg);
 
         mockMvc.perform(post("/api/registration/15/apply")
                 .header("Authorization", bearerToken(100L, "admin"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(body)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("{\"applied\":true}"));
+                .andExpect(jsonPath("$.applied").value(true));
 
         ArgumentCaptor<Registration> captor = ArgumentCaptor.forClass(Registration.class);
         verify(registrationService).createRegistration(captor.capture());
