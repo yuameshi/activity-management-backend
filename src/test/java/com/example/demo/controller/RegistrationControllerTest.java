@@ -43,7 +43,8 @@ class RegistrationControllerTest {
     }
 
     private String bearerToken(Long id, String username) {
-        String tok = JwtUtil.generateToken(id, username);
+        Boolean isAdmin = username.equalsIgnoreCase("admin");
+        String tok = JwtUtil.generateToken(id, username, isAdmin);
         return "Bearer " + tok;
     }
 

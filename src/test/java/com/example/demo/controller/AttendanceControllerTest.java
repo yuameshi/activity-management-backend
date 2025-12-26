@@ -70,7 +70,7 @@ class AttendanceControllerTest {
         act.setDescription("描述");
         act.setLocation("地点");
 
-        Claims claims = JwtUtil.parseToken(JwtUtil.generateToken(5L, "user5"));
+        Claims claims = JwtUtil.parseToken(JwtUtil.generateToken(5L, "user5", false));
         when(activityService.getById(2L)).thenReturn(act);
         when(attendanceService.createAttendance(any())).thenReturn(1);
 
@@ -79,7 +79,7 @@ class AttendanceControllerTest {
             mocked.when(() -> AttendanceController.getTOTPCode(anyString())).thenReturn("123456");
 
             mockMvc.perform(post("/api/attendance/sign")
-                    .header("Authorization", "Bearer " + JwtUtil.generateToken(5L, "user5"))
+                    .header("Authorization", "Bearer " + JwtUtil.generateToken(5L, "user5", false))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(req)))
                     .andExpect(status().isOk())
@@ -95,7 +95,7 @@ class AttendanceControllerTest {
         req.userId = 99L;
 
         mockMvc.perform(post("/api/attendance/sign")
-                .header("Authorization", "Bearer " + JwtUtil.generateToken(5L, "user5"))
+                .header("Authorization", "Bearer " + JwtUtil.generateToken(5L, "user5", false))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isForbidden())
@@ -107,7 +107,7 @@ class AttendanceControllerTest {
         List<Attendance> list = Arrays.asList(new Attendance(), new Attendance());
         when(attendanceService.getAttendanceListByActivityIdAndStatus(3L, null)).thenReturn(list);
 
-        String token = JwtUtil.generateToken(100L, "admin");
+        String token = JwtUtil.generateToken(100L, "admin", true);
         mockMvc.perform(get("/api/attendance/list/3")
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -118,7 +118,7 @@ class AttendanceControllerTest {
 
     @Test
     void listAttendanceByActivityId_forbiddenForNonAdmin() throws Exception {
-        String token = JwtUtil.generateToken(101L, "user101");
+        String token = JwtUtil.generateToken(101L, "user101", false);
         mockMvc.perform(get("/api/attendance/list/3")
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isForbidden())

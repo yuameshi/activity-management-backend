@@ -36,7 +36,8 @@ class UserControllerTest {
     }
 
     private String bearerToken(Long id, String username) {
-        String tok = JwtUtil.generateToken(id, username);
+        Boolean isAdmin = username.equalsIgnoreCase("admin");
+        String tok = JwtUtil.generateToken(id, username, isAdmin);
         return "Bearer " + tok;
     }
 
@@ -50,8 +51,8 @@ class UserControllerTest {
         when(userService.getById(5L)).thenReturn(u);
 
         mockMvc.perform(get("/api/user/info")
-                        .header("Authorization", bearerToken(5L, "user5"))
-                        .accept(MediaType.APPLICATION_JSON))
+                .header("Authorization", bearerToken(5L, "user5"))
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(5))
                 .andExpect(jsonPath("$.username").value("user5"))
@@ -61,9 +62,9 @@ class UserControllerTest {
     @Test
     void info_forbidden_whenNotAdminAndNotSelf() throws Exception {
         mockMvc.perform(get("/api/user/info")
-                        .header("Authorization", bearerToken(8L, "user8"))
-                        .param("id", "2")
-                        .accept(MediaType.APPLICATION_JSON))
+                .header("Authorization", bearerToken(8L, "user8"))
+                .param("id", "2")
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
@@ -80,9 +81,9 @@ class UserControllerTest {
         when(userService.updateUser(eq(7L), eq("user7"), eq(7L), any())).thenReturn(returned);
 
         mockMvc.perform(put("/api/user/update")
-                        .header("Authorization", bearerToken(7L, "user7"))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(update)))
+                .header("Authorization", bearerToken(7L, "user7"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(update)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(7))
                 .andExpect(jsonPath("$.email").value("new@example.com"));
@@ -94,10 +95,10 @@ class UserControllerTest {
         update.setEmail("x@example.com");
 
         mockMvc.perform(put("/api/user/update")
-                        .header("Authorization", bearerToken(9L, "user9"))
-                        .param("targetId", "3")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(update)))
+                .header("Authorization", bearerToken(9L, "user9"))
+                .param("targetId", "3")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(update)))
                 .andExpect(status().isForbidden());
     }
 
@@ -112,8 +113,8 @@ class UserControllerTest {
         when(userService.listUsers()).thenReturn(List.of(a, b));
 
         mockMvc.perform(get("/api/user/list")
-                        .header("Authorization", bearerToken(100L, "admin"))
-                        .accept(MediaType.APPLICATION_JSON))
+                .header("Authorization", bearerToken(100L, "admin"))
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].username").value("u1"))
@@ -124,8 +125,8 @@ class UserControllerTest {
     @Test
     void list_forbidden_forNonAdmin() throws Exception {
         mockMvc.perform(get("/api/user/list")
-                        .header("Authorization", bearerToken(11L, "user11"))
-                        .accept(MediaType.APPLICATION_JSON))
+                .header("Authorization", bearerToken(11L, "user11"))
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 }
