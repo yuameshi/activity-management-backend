@@ -68,7 +68,8 @@ public class UserService {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new IllegalArgumentException("invalid username or password");
         }
-        String token = JwtUtil.generateToken(user.getId(), user.getUsername());
+        Boolean isAdmin = this.isAdmin(user.getId());
+        String token = JwtUtil.generateToken(user.getId(), user.getUsername(), isAdmin);
         Map<String, Object> result = new HashMap<>();
         // return basic user info without password
         User safe = new User();
@@ -79,6 +80,7 @@ public class UserService {
         safe.setPhone(user.getPhone());
         result.put("token", token);
         result.put("user", safe);
+        result.put("isAdmin", isAdmin);
         return result;
     }
 
@@ -172,5 +174,14 @@ public class UserService {
         safe.setStatus(target.getStatus());
         safe.setCreateTime(target.getCreateTime());
         return safe;
+    }
+
+    public boolean isAdmin(Long userId) {
+        if (userId == null) {
+            return false;
+        }
+        // 调用mapper方法查询
+        int count = userMapper.countAdminRoleByUserId(userId);
+        return count > 0;
     }
 }

@@ -46,4 +46,7 @@
     WHERE id = #{id}
   </update>
 
+  <select id="countAdminRoleByUserId" parameterType="long" resultType="int">
+    SELECT COUNT(*) FROM user_role WHERE user_id = #{userId} AND role_id = 1
+  </select>
 </mapper>

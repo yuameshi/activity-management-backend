@@ -17,4 +17,12 @@ public interface UserMapper {
     List<User> findAll();
 
     int updateUser(User user);
+
+    /**
+     * 查询指定用户是否为管理员（user_role表中存在user_id=userId且role_id=1的记录）
+     * 
+     * @param userId 用户ID
+     * @return 记录数（大于0表示是管理员）
+     */
+    int countAdminRoleByUserId(@Param("userId") Long userId);
 }
