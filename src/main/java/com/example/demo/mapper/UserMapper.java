@@ -25,4 +25,5 @@ public interface UserMapper {
      * @return 记录数（大于0表示是管理员）
      */
     int countAdminRoleByUserId(@Param("userId") Long userId);
+    int deleteUserById(@Param("id") Long id);
 }

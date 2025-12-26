@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import static org.mockito.Mockito.doNothing;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -127,6 +128,28 @@ class UserControllerTest {
         mockMvc.perform(get("/api/user/list")
                 .header("Authorization", bearerToken(11L, "user11"))
                 .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+    @Test
+    void delete_admin_success() throws Exception {
+        doNothing().when(userService).deleteUserById(10L);
+
+        mockMvc.perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/user/delete")
+                        .header("Authorization", bearerToken(100L, "admin"))
+                        .param("id", "10")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
+    }
+
+    @Test
+    void delete_forbidden_forNonAdmin() throws Exception {
+        mockMvc.perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/user/delete")
+                        .header("Authorization", bearerToken(11L, "user11"))
+                        .param("id", "10")
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 }

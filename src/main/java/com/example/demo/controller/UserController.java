@@ -118,4 +118,25 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", ex.getMessage()));
         }
     }
+
+    /**
+     * 删除用户（仅管理员）
+     */
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> delete(@RequestHeader(value = "Authorization", required = false) String auth,
+            @RequestParam(value = "id") Long id) {
+        try {
+            Claims claims = parseAuth(auth);
+            Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+            if (isAdmin == null || !isAdmin) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
+            }
+            userService.deleteUserById(id);
+            return ResponseEntity.ok(Map.of("success", true));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", ex.getMessage()));
+        }
+    }
 }

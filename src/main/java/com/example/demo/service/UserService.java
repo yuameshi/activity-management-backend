@@ -176,4 +176,13 @@ public class UserService {
         int count = userMapper.countAdminRoleByUserId(userId);
         return count > 0;
     }
+    /**
+     * 删除用户（仅管理员可用）
+     */
+    public void deleteUserById(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("id required");
+        }
+        userMapper.deleteUserById(id);
+    }
 }

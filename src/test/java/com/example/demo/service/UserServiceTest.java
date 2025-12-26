@@ -95,4 +95,17 @@ class UserServiceTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> userService.login("dan", "wrong"));
         assertTrue(ex.getMessage().toLowerCase().contains("invalid"));
     }
+    @Test
+    void deleteUserById_success() {
+        doNothing().when(userMapper).deleteUserById(5L);
+        assertDoesNotThrow(() -> userService.deleteUserById(5L));
+        verify(userMapper, times(1)).deleteUserById(5L);
+    }
+
+    @Test
+    void deleteUserById_nullId() {
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> userService.deleteUserById(null));
+        assertTrue(ex.getMessage().toLowerCase().contains("id"));
+        verify(userMapper, never()).deleteUserById(any());
+    }
 }
