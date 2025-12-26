@@ -51,6 +51,7 @@ public class UserService {
         resp.setAvatar(user.getAvatar());
         resp.setStatus(user.getStatus());
         resp.setCreateTime(user.getCreateTime());
+        resp.setRole(user.getRole());
         return resp;
     }
 
@@ -78,6 +79,7 @@ public class UserService {
         safe.setRealName(user.getRealName());
         safe.setEmail(user.getEmail());
         safe.setPhone(user.getPhone());
+        safe.setRole(user.getRole());
         result.put("token", token);
         result.put("user", safe);
         result.put("isAdmin", isAdmin);
@@ -102,6 +104,7 @@ public class UserService {
         safe.setAvatar(u.getAvatar());
         safe.setStatus(u.getStatus());
         safe.setCreateTime(u.getCreateTime());
+        safe.setRole(u.getRole());
         return safe;
     }
 
@@ -123,6 +126,7 @@ public class UserService {
             safe.setAvatar(u.getAvatar());
             safe.setStatus(u.getStatus());
             safe.setCreateTime(u.getCreateTime());
+            safe.setRole(u.getRole());
             out.add(safe);
         }
         return out;
@@ -165,6 +169,7 @@ public class UserService {
         safe.setAvatar(target.getAvatar());
         safe.setStatus(target.getStatus());
         safe.setCreateTime(target.getCreateTime());
+        safe.setRole(target.getRole());
         return safe;
     }
 

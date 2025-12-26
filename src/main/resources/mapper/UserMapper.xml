@@ -13,12 +13,13 @@
     <result property="phone" column="phone" />
     <result property="avatar" column="avatar" />
     <result property="status" column="status" />
+    <result property="role" column="role" />
     <result property="createTime" column="create_time" />
   </resultMap>
 
   <insert id="insertUser" parameterType="com.example.demo.model.User" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO user (username, password, real_name, email, phone, avatar, status, create_time)
-    VALUES (#{username}, #{password}, #{realName}, #{email}, #{phone}, #{avatar}, #{status}, #{createTime})
+    INSERT INTO user (username, password, real_name, email, phone, avatar, role, status, create_time)
+    VALUES (#{username}, #{password}, #{realName}, #{email}, #{phone}, #{avatar}, #{role}, #{status}, #{createTime})
   </insert>
 
   <select id="findByUsername" parameterType="string" resultMap="UserResultMap">
@@ -42,6 +43,7 @@
       <if test="phone != null">phone = #{phone},</if>
       <if test="avatar != null">avatar = #{avatar},</if>
       <if test="status != null">status = #{status},</if>
+      <if test="role != null">role = #{role},</if>
     </set>
     WHERE id = #{id}
   </update>

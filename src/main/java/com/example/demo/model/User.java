@@ -13,12 +13,13 @@ public class User {
     private String avatar;
     private Byte status;
     private LocalDateTime createTime;
+    private int role;
 
     public User() {
     }
 
     public User(Long id, String username, String password, String realName, String email, String phone, String avatar,
-            Byte status, LocalDateTime createTime) {
+            Byte status, LocalDateTime createTime, int role) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -28,6 +29,7 @@ public class User {
         this.avatar = avatar;
         this.status = status;
         this.createTime = createTime;
+        this.role = role;
     }
 
     public Long getId() {
@@ -92,6 +94,14 @@ public class User {
 
     public void setStatus(Byte status) {
         this.status = status;
+    }
+
+    public int getRole() {
+        return role;
+    }
+
+    public void setRole(int role) {
+        this.role = role;
     }
 
     public LocalDateTime getCreateTime() {
