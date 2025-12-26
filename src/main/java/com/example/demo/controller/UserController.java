@@ -40,14 +40,12 @@ public class UserController {
     public ResponseEntity<?> info(@RequestHeader(value = "Authorization", required = false) String auth,
             @RequestParam(value = "id", required = false) Long id) {
         try {
-            System.out.println("[info] called, id=" + id);
             Claims claims = parseAuth(auth);
             Long requesterId = ((Number) claims.get("id")).longValue();
             Boolean isAdmin = claims.get("isAdmin", Boolean.class);
 
             Long targetId = id == null ? requesterId : id;
             if ((isAdmin == null || !isAdmin) && !requesterId.equals(targetId)) {
-                System.out.println("[info] forbidden: requesterId=" + requesterId + ", targetId=" + targetId);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
             }
             User u = userService.getById(targetId);
@@ -55,10 +53,8 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found"));
             return ResponseEntity.ok(u);
         } catch (IllegalArgumentException ex) {
-            System.out.println("[info] IllegalArgumentException: " + ex.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
         } catch (Exception ex) {
-            System.out.println("[info] Exception: " + ex.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", ex.getMessage()));
         }
     }
