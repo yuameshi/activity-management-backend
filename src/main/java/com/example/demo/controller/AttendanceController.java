@@ -254,7 +254,7 @@ public class AttendanceController {
         Activity act = activityService.getById(req.activityId);
         if ("QR".equals(req.signType)) {
             if (req.code == null || req.code.length() != 6) {
-                return org.springframework.http.ResponseEntity.badRequest().body(error(400, "签到码无效"));
+                return ResponseEntity.badRequest().body(error(400, "签到码无效"));
             }
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             String input = act.getTitle();
@@ -267,8 +267,12 @@ public class AttendanceController {
             String hashHex = hexString.toString();
             boolean isCodeValid = req.code.equals(getTOTPCode(hashHex));
             if (!isCodeValid) {
-                return org.springframework.http.ResponseEntity.badRequest().body(error(400, "签到码无效或过期"));
+                return ResponseEntity.badRequest().body(error(400, "签到码无效或过期"));
             }
+        }
+
+        if (attendanceService.getByUserIdAndActivityId(signUserId, req.activityId) != null) {
+            return ResponseEntity.ok(ok(java.util.Map.of("message", "签到成功", "act", act)));
         }
 
         Attendance attendance = new Attendance();
@@ -279,9 +283,9 @@ public class AttendanceController {
 
         int rows = attendanceService.createAttendance(attendance);
         if (rows > 0) {
-            return org.springframework.http.ResponseEntity.ok(ok(java.util.Map.of("message", "签到成功", "act", act)));
+            return ResponseEntity.ok(ok(java.util.Map.of("message", "签到成功", "act", act)));
         } else {
-            return org.springframework.http.ResponseEntity.status(500).body(error(500, "签到失败"));
+            return ResponseEntity.status(500).body(error(500, "签到失败"));
         }
     }
 
