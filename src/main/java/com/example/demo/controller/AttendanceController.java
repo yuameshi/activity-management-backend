@@ -240,7 +240,6 @@ public class AttendanceController {
             return ResponseEntity.status(401).body(error(401, "JWT 无效"));
         }
         Long jwtUserId = claims.get("id", Long.class);
-        Boolean isAdmin = claims.get("isAdmin", Boolean.class);
 
         Long signUserId = jwtUserId;
         // 只允许给自己签到，包括管理员
@@ -335,7 +334,7 @@ public class AttendanceController {
             User user = userService.getById(createdAttendance.getUserId());
             responseData.put("username", user.getUsername());
             responseData.put("userRealName", user.getRealName());
-                responseData.put("userAvatar", user.getAvatar());
+            responseData.put("userAvatar", user.getAvatar());
             return ResponseEntity.ok(ok(responseData));
         }
     }

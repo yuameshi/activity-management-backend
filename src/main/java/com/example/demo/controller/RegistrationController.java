@@ -97,7 +97,7 @@ public class RegistrationController {
             reg.setActivityId(activityId);
             if (body != null && body.getStatus() != null)
                 reg.setStatus(body.getStatus());
-            int res = registrationService.createRegistration(reg);
+            registrationService.createRegistration(reg);
             Registration result = registrationService.getByUserAndActivity(userId, activityId);
             if (result != null) {
                 return ResponseEntity.ok(Map.of("applied", true, "registration", result));

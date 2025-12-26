@@ -4,24 +4,20 @@ import com.example.demo.model.Activity;
 import com.example.demo.model.Attendance;
 import com.example.demo.service.ActivityService;
 import com.example.demo.service.AttendanceService;
+import com.example.demo.service.UserService;
 import com.example.demo.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import jakarta.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -38,7 +34,8 @@ class AttendanceControllerTest {
     void setUp() {
         attendanceService = Mockito.mock(AttendanceService.class);
         activityService = Mockito.mock(ActivityService.class);
-        AttendanceController controller = new AttendanceController(attendanceService, activityService);
+        UserService userService = Mockito.mock(UserService.class);
+        AttendanceController controller = new AttendanceController(attendanceService, activityService, userService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
@@ -70,7 +67,6 @@ class AttendanceControllerTest {
         act.setDescription("描述");
         act.setLocation("地点");
 
-        Claims claims = JwtUtil.parseToken(JwtUtil.generateToken(5L, "user5", false));
         when(activityService.getById(2L)).thenReturn(act);
         when(attendanceService.createAttendance(any())).thenReturn(1);
 
