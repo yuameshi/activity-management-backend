@@ -157,7 +157,7 @@ public class AttendanceController {
                         .withZone(ZoneId.of("Asia/Shanghai"))
                         .format(Instant.now());
 
-                String data = String.format("{\"code\":\"%s\",\"time\":\"%s\",\\\"aid\\\":\\\"%s\\\"}", code, timeStr,
+                String data = String.format("{\"code\":\"%s\",\"time\":\"%s\",\"aid\":\"%s\"}", code, timeStr,
                         activityId);
 
                 response.getWriter().write("data: " + data + "\n\n");
