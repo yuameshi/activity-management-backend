@@ -2,14 +2,17 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Activity;
 import com.example.demo.model.Attendance;
+import com.example.demo.model.User;
 import com.example.demo.service.ActivityService;
 import com.example.demo.service.AttendanceService;
+import com.example.demo.service.UserService;
 import com.example.demo.util.JwtUtil;
 
 import io.jsonwebtoken.Claims;
 
 import org.apache.commons.codec.binary.Base32;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,8 +31,11 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -43,11 +49,14 @@ public class AttendanceController {
 
     private final AttendanceService attendanceService;
     private final ActivityService activityService;
+    private final UserService userService;
     private final String SALT = "SOME_RANDOM_SALT_VALUE";
 
-    public AttendanceController(AttendanceService attendanceService, ActivityService activityService) {
+    public AttendanceController(AttendanceService attendanceService, ActivityService activityService,
+            UserService userService) {
         this.attendanceService = attendanceService;
         this.activityService = activityService;
+        this.userService = userService;
     }
 
     public static String getTOTPCode(String secretKey) {
@@ -87,8 +96,22 @@ public class AttendanceController {
      * @return 签到记录列表
      */
     @GetMapping("/activity/{activityId}")
-    public List<Attendance> getByActivityId(@PathVariable Long activityId) {
-        return attendanceService.getByActivityId(activityId);
+    public List<Map<String, Object>> getByActivityId(@PathVariable Long activityId) {
+        List<Map<String, Object>> attendanceListReturn = new ArrayList<>();
+        List<Attendance> attendanceList = attendanceService.getByActivityId(activityId);
+        // map添加签到信息，用户名和用户id
+        for (Attendance attendance : attendanceList) {
+            Map<String, Object> attendenceCopy = new HashMap<>();
+            attendenceCopy.put("id", attendance.getId());
+            attendenceCopy.put("activityId", attendance.getActivityId());
+            attendenceCopy.put("userId", attendance.getUserId());
+            attendenceCopy.put("signTime", attendance.getSignTime());
+            User user = userService.getById(attendance.getUserId()) ;
+            attendenceCopy.put("username", user.getUsername());
+            attendenceCopy.put("userRealName", user.getRealName());
+            attendanceListReturn.add(attendenceCopy);
+        }
+        return attendanceListReturn;
     }
 
     /**
@@ -201,19 +224,19 @@ public class AttendanceController {
      * @param request HTTP 请求
      * @return 统一响应对象
      */
-    public org.springframework.http.ResponseEntity<Object> signAttendance(
+    public ResponseEntity<Object> signAttendance(
             @RequestBody SignRequest req,
             HttpServletRequest request) throws NoSuchAlgorithmException {
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return org.springframework.http.ResponseEntity.status(401).body(error(401, "未提供有效的 JWT"));
+            return ResponseEntity.status(401).body(error(401, "未提供有效的 JWT"));
         }
         String token = authHeader.substring(7);
         Claims claims;
         try {
             claims = JwtUtil.parseToken(token);
         } catch (Exception e) {
-            return org.springframework.http.ResponseEntity.status(401).body(error(401, "JWT 无效"));
+            return ResponseEntity.status(401).body(error(401, "JWT 无效"));
         }
         Long jwtUserId = claims.get("id", Long.class);
         Boolean isAdmin = claims.get("isAdmin", Boolean.class);
@@ -223,10 +246,10 @@ public class AttendanceController {
             signUserId = req.userId;
         } else {
             if (req.userId != null && !req.userId.equals(jwtUserId))
-                return org.springframework.http.ResponseEntity.status(403).body(error(403, "无权为他人签到"));
+                return ResponseEntity.status(403).body(error(403, "无权为他人签到"));
         }
         if (!"QR".equals(req.signType) && !"MANUAL".equals(req.signType)) {
-            return org.springframework.http.ResponseEntity.badRequest()
+            return ResponseEntity.badRequest()
                     .body(error(400, "签到方式 signType 必须为 QR 或 MANUAL"));
         }
 
@@ -275,38 +298,5 @@ public class AttendanceController {
         map.put("code", code);
         map.put("msg", msg);
         return map;
-    }
-
-    /**
-     * 查询指定活动的签到列表，支持按状态筛选，仅管理员可访问。
-     * 
-     * @param activityId 活动ID
-     * @param status     签到状态（可选，已签/迟到/未签等）
-     * @param request    HTTP请求
-     * @return 统一响应对象
-     */
-    @GetMapping("/list/{activityId}")
-    public org.springframework.http.ResponseEntity<Object> listAttendanceByActivityId(
-            @PathVariable Long activityId,
-            @RequestParam(value = "status", required = false) String status,
-            HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return org.springframework.http.ResponseEntity.status(401).body(error(401, "未提供有效的 JWT"));
-        }
-        String token = authHeader.substring(7);
-        Claims claims;
-        try {
-            claims = JwtUtil.parseToken(token);
-        } catch (Exception e) {
-            return org.springframework.http.ResponseEntity.status(401).body(error(401, "JWT 无效"));
-        }
-        Boolean isAdmin = claims.get("isAdmin", Boolean.class);
-        if (isAdmin == null || !isAdmin) {
-            return org.springframework.http.ResponseEntity.status(403).body(error(403, "仅管理员可访问"));
-        }
-        List<Attendance> list = attendanceService
-                .getAttendanceListByActivityIdAndStatus(activityId, status);
-        return org.springframework.http.ResponseEntity.ok(ok(list));
     }
 }
