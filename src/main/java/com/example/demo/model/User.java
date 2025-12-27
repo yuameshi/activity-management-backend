@@ -13,13 +13,13 @@ public class User {
     private String avatar;
     private Byte status;
     private LocalDateTime createTime;
-    private int role;
+    private Integer role;
 
     public User() {
     }
 
     public User(Long id, String username, String password, String realName, String email, String phone, String avatar,
-            Byte status, LocalDateTime createTime, int role) {
+            Byte status, LocalDateTime createTime, Integer role) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -100,7 +100,7 @@ public class User {
         return role;
     }
 
-    public void setRole(int role) {
+    public void setRole(Integer role) {
         this.role = role;
     }
 
