@@ -59,6 +59,41 @@ public class UserService {
     }
 
     /**
+     * 管理员专用：修改用户所有字段（除ID）
+     */
+    public User adminUpdateUser(Long id, User update) {
+        if (id == null || update == null) {
+            throw new IllegalArgumentException("id and update data required");
+        }
+        User user = userMapper.findById(id);
+        if (user == null) {
+            throw new IllegalArgumentException("user not found");
+        }
+        if (update.getUsername() != null) user.setUsername(update.getUsername());
+        if (update.getPassword() != null && !update.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(update.getPassword()));
+        }
+        if (update.getRealName() != null) user.setRealName(update.getRealName());
+        if (update.getEmail() != null) user.setEmail(update.getEmail());
+        if (update.getPhone() != null) user.setPhone(update.getPhone());
+        if (update.getAvatar() != null) user.setAvatar(update.getAvatar());
+        if (update.getStatus() != null) user.setStatus(update.getStatus());
+        if (update.getRole() != 0) user.setRole(update.getRole());
+        userMapper.updateUser(user);
+        User safe = new User();
+        safe.setId(user.getId());
+        safe.setUsername(user.getUsername());
+        safe.setRealName(user.getRealName());
+        safe.setEmail(user.getEmail());
+        safe.setPhone(user.getPhone());
+        safe.setAvatar(user.getAvatar());
+        safe.setStatus(user.getStatus());
+        safe.setCreateTime(user.getCreateTime());
+        safe.setRole(user.getRole());
+        return safe;
+    }
+
+    /**
      * 仅管理员新建用户（可指定角色）
      */
     public User createUserByAdmin(User user) {
@@ -215,8 +250,8 @@ public class UserService {
             return false;
         }
         // 调用mapper方法查询
-        int role = userMapper.countAdminRoleByUserId(userId);
-        return role == 0;
+        int role = userMapper.getRoleByUserId(userId);
+        return role == 1;
     }
     /**
      * 删除用户（仅管理员可用）

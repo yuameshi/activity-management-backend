@@ -124,7 +124,7 @@ public class UserController {
      */
     @PostMapping("/create")
     public ResponseEntity<?> createUser(@RequestHeader(value = "Authorization", required = false) String auth,
-                                        @RequestBody User user) {
+            @RequestBody User user) {
         try {
             Claims claims = parseAuth(auth);
             Boolean isAdmin = claims.get("isAdmin", Boolean.class);
@@ -154,6 +154,28 @@ public class UserController {
             }
             userService.deleteUserById(id);
             return ResponseEntity.ok(Map.of("success", true));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", ex.getMessage()));
+        }
+    }
+
+    /**
+     * 管理员专用：修改用户所有字段（除ID）
+     */
+    @PutMapping("/{id}/admin-update")
+    public ResponseEntity<?> adminUpdateUser(@RequestHeader(value = "Authorization", required = false) String auth,
+            @PathVariable Long id,
+            @RequestBody User update) {
+        try {
+            Claims claims = parseAuth(auth);
+            Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+            if (isAdmin == null || !isAdmin) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
+            }
+            User updated = userService.adminUpdateUser(id, update);
+            return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
         } catch (Exception ex) {

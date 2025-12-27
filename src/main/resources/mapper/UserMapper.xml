@@ -37,6 +37,7 @@
   <update id="updateUser" parameterType="com.example.demo.model.User">
     UPDATE user
     <set>
+      <if test="username != null">username = #{username},</if>
       <if test="password != null">password = #{password},</if>
       <if test="realName != null">real_name = #{realName},</if>
       <if test="email != null">email = #{email},</if>
@@ -56,8 +57,8 @@
     UPDATE user SET status = #{status} WHERE id = #{id}
   </update>
 
-  <select id="countAdminRoleByUserId" parameterType="long" resultType="int">
-    SELECT role FROM user WHERE user_id = #{userId}
+  <select id="getRoleByUserId" parameterType="long" resultType="int">
+    SELECT role FROM user WHERE id = #{userId}
   </select>
   <delete id="deleteUserById" parameterType="long">
     DELETE FROM user WHERE id = #{id}
