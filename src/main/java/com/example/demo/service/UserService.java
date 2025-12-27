@@ -15,6 +15,34 @@ import java.util.Map;
 @Service
 public class UserService {
 
+    /**
+     * 根据用户名获取用户（安全视图，不返回密码）
+     */
+    /**
+     * 支持通过 query 同时模糊搜索用户名和真实姓名（安全视图，不返回密码）
+     */
+    public List<User> searchByQuery(String query) {
+        if (query == null || query.isEmpty()) {
+            throw new IllegalArgumentException("query参数不能为空");
+        }
+        List<User> users = userMapper.searchByQuery(query);
+        List<User> safeUsers = new ArrayList<>();
+        for (User u : users) {
+            User safe = new User();
+            safe.setId(u.getId());
+            safe.setUsername(u.getUsername());
+            safe.setRealName(u.getRealName());
+            safe.setEmail(u.getEmail());
+            safe.setPhone(u.getPhone());
+            safe.setAvatar(u.getAvatar());
+            safe.setStatus(u.getStatus());
+            safe.setCreateTime(u.getCreateTime());
+            safe.setRole(u.getRole());
+            safeUsers.add(safe);
+        }
+        return safeUsers;
+    }
+
     private final UserMapper userMapper;
     private final BCryptPasswordEncoder passwordEncoder;
 
@@ -69,16 +97,23 @@ public class UserService {
         if (user == null) {
             throw new IllegalArgumentException("user not found");
         }
-        if (update.getUsername() != null) user.setUsername(update.getUsername());
+        if (update.getUsername() != null)
+            user.setUsername(update.getUsername());
         if (update.getPassword() != null && !update.getPassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(update.getPassword()));
         }
-        if (update.getRealName() != null) user.setRealName(update.getRealName());
-        if (update.getEmail() != null) user.setEmail(update.getEmail());
-        if (update.getPhone() != null) user.setPhone(update.getPhone());
-        if (update.getAvatar() != null) user.setAvatar(update.getAvatar());
-        if (update.getStatus() != null) user.setStatus(update.getStatus());
-        if (update.getRole() != 0) user.setRole(update.getRole());
+        if (update.getRealName() != null)
+            user.setRealName(update.getRealName());
+        if (update.getEmail() != null)
+            user.setEmail(update.getEmail());
+        if (update.getPhone() != null)
+            user.setPhone(update.getPhone());
+        if (update.getAvatar() != null)
+            user.setAvatar(update.getAvatar());
+        if (update.getStatus() != null)
+            user.setStatus(update.getStatus());
+        if (update.getRole() != 0)
+            user.setRole(update.getRole());
         userMapper.updateUser(user);
         User safe = new User();
         safe.setId(user.getId());
@@ -253,6 +288,7 @@ public class UserService {
         int role = userMapper.getRoleByUserId(userId);
         return role == 1;
     }
+
     /**
      * 删除用户（仅管理员可用）
      */
@@ -262,6 +298,7 @@ public class UserService {
         }
         userMapper.deleteUserById(id);
     }
+
     /**
      * 管理员设置用户角色
      */

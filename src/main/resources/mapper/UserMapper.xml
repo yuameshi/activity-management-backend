@@ -26,6 +26,13 @@
     SELECT * FROM user WHERE username = #{username}
   </select>
 
+  <select id="searchByQuery" parameterType="string" resultMap="UserResultMap">
+    SELECT * FROM user
+    WHERE username LIKE CONCAT('%', #{query}, '%')
+       OR real_name LIKE CONCAT('%', #{query}, '%')
+    ORDER BY id
+  </select>
+
   <select id="findById" parameterType="long" resultMap="UserResultMap">
     SELECT * FROM user WHERE id = #{id}
   </select>

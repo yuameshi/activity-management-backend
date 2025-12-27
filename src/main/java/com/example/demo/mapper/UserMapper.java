@@ -12,6 +12,13 @@ public interface UserMapper {
 
     User findByUsername(@Param("username") String username);
 
+    List<User> searchByUsername(@Param("username") String username);
+
+    /**
+     * 支持通过 query 同时模糊搜索用户名和真实姓名
+     */
+    List<User> searchByQuery(@Param("query") String query);
+
     User findById(@Param("id") Long id);
 
     List<User> findAll();
@@ -29,5 +36,6 @@ public interface UserMapper {
      * @return 角色id
      */
     int getRoleByUserId(@Param("userId") Long userId);
+
     int deleteUserById(@Param("id") Long id);
 }

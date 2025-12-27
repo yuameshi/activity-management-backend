@@ -18,6 +18,31 @@ import java.util.Map;
 @RequestMapping("/api/user")
 public class UserController {
 
+    /**
+     * 按用户名搜索用户（仅管理员）
+     */
+    @GetMapping("/admin_search")
+    public ResponseEntity<?> searchUser(
+            @RequestHeader(value = "Authorization", required = false) String auth,
+            @RequestParam(value = "query", required = false) String query) {
+        try {
+            Claims claims = parseAuth(auth);
+            Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+            if (isAdmin == null || !isAdmin) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
+            }
+            if (query == null || query.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "query参数不能为空"));
+            }
+            List<User> users = userService.searchByQuery(query);
+            return ResponseEntity.ok(users);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", ex.getMessage()));
+        }
+    }
+
     private final UserService userService;
 
     public UserController(UserService userService) {
