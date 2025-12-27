@@ -139,4 +139,47 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", ex.getMessage()));
         }
     }
+    /**
+     * 管理员设置用户角色
+     */
+    @PutMapping("/{id}/set-role")
+    public ResponseEntity<?> setRole(@RequestHeader(value = "Authorization", required = false) String auth,
+                                     @PathVariable("id") Long id,
+                                     @RequestParam("role") int role) {
+        try {
+            Claims claims = parseAuth(auth);
+            Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+            if (isAdmin == null || !isAdmin) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
+            }
+            User updated = userService.setUserRole(id, role);
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", ex.getMessage()));
+        }
+    }
+
+    /**
+     * 管理员设置用户状态
+     */
+    @PutMapping("/{id}/set-status")
+    public ResponseEntity<?> setStatus(@RequestHeader(value = "Authorization", required = false) String auth,
+                                       @PathVariable("id") Long id,
+                                       @RequestParam("status") Byte status) {
+        try {
+            Claims claims = parseAuth(auth);
+            Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+            if (isAdmin == null || !isAdmin) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
+            }
+            User updated = userService.setUserStatus(id, status);
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", ex.getMessage()));
+        }
+    }
 }

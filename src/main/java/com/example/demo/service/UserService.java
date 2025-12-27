@@ -190,4 +190,57 @@ public class UserService {
         }
         userMapper.deleteUserById(id);
     }
+    /**
+     * 管理员设置用户角色
+     */
+    public User setUserRole(Long userId, int role) {
+        if (userId == null) {
+            throw new IllegalArgumentException("id required");
+        }
+        User user = userMapper.findById(userId);
+        if (user == null) {
+            throw new IllegalArgumentException("user not found");
+        }
+        user.setRole(role);
+        userMapper.updateUser(user);
+        // 返回安全视图
+        User safe = new User();
+        safe.setId(user.getId());
+        safe.setUsername(user.getUsername());
+        safe.setRealName(user.getRealName());
+        safe.setEmail(user.getEmail());
+        safe.setPhone(user.getPhone());
+        safe.setAvatar(user.getAvatar());
+        safe.setStatus(user.getStatus());
+        safe.setCreateTime(user.getCreateTime());
+        safe.setRole(user.getRole());
+        return safe;
+    }
+
+    /**
+     * 管理员设置用户状态
+     */
+    public User setUserStatus(Long userId, Byte status) {
+        if (userId == null) {
+            throw new IllegalArgumentException("id required");
+        }
+        User user = userMapper.findById(userId);
+        if (user == null) {
+            throw new IllegalArgumentException("user not found");
+        }
+        user.setStatus(status);
+        userMapper.updateUser(user);
+        // 返回安全视图
+        User safe = new User();
+        safe.setId(user.getId());
+        safe.setUsername(user.getUsername());
+        safe.setRealName(user.getRealName());
+        safe.setEmail(user.getEmail());
+        safe.setPhone(user.getPhone());
+        safe.setAvatar(user.getAvatar());
+        safe.setStatus(user.getStatus());
+        safe.setCreateTime(user.getCreateTime());
+        safe.setRole(user.getRole());
+        return safe;
+    }
 }

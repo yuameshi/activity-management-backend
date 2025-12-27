@@ -18,6 +18,10 @@ public interface UserMapper {
 
     int updateUser(User user);
 
+    int setUserRole(@Param("id") Long id, @Param("role") int role);
+
+    int setUserStatus(@Param("id") Long id, @Param("status") Byte status);
+
     /**
      * 查询指定用户是否为管理员（user_role表中存在user_id=userId且role_id=1的记录）
      * 

@@ -48,6 +48,14 @@
     WHERE id = #{id}
   </update>
 
+  <update id="setUserRole" parameterType="map">
+    UPDATE user SET role = #{role} WHERE id = #{id}
+  </update>
+
+  <update id="setUserStatus" parameterType="map">
+    UPDATE user SET status = #{status} WHERE id = #{id}
+  </update>
+
   <select id="countAdminRoleByUserId" parameterType="long" resultType="int">
     SELECT role FROM user WHERE user_id = #{userId}
   </select>
