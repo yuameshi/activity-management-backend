@@ -383,4 +383,21 @@ public class AttendanceController {
         map.put("msg", msg);
         return map;
     }
+    /**
+     * 根据用户ID查询签到记录，返回活动名称和签到时间
+     */
+    @GetMapping("/user/{userId}/records")
+    public List<Map<String, Object>> getAttendanceRecordsByUserId(@PathVariable Long userId) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        List<Attendance> attendanceList = attendanceService.getByUserId(userId);
+        for (Attendance attendance : attendanceList) {
+            Map<String, Object> map = new HashMap<>();
+            // 获取活动名称
+            Activity activity = activityService.getById(attendance.getActivityId());
+            map.put("activityName", activity != null ? activity.getTitle() : null);
+            map.put("signTime", attendance.getSignTime());
+            result.add(map);
+        }
+        return result;
+    }
 }
