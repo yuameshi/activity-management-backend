@@ -120,6 +120,27 @@ public class UserController {
     }
 
     /**
+     * 新建用户（仅管理员）
+     */
+    @PostMapping("/create")
+    public ResponseEntity<?> createUser(@RequestHeader(value = "Authorization", required = false) String auth,
+                                        @RequestBody User user) {
+        try {
+            Claims claims = parseAuth(auth);
+            Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+            if (isAdmin == null || !isAdmin) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
+            }
+            User created = userService.createUserByAdmin(user);
+            return ResponseEntity.ok(created);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", ex.getMessage()));
+        }
+    }
+
+    /**
      * 删除用户（仅管理员）
      */
     @DeleteMapping("/delete")
@@ -139,13 +160,14 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", ex.getMessage()));
         }
     }
+
     /**
      * 管理员设置用户角色
      */
     @PutMapping("/{id}/set-role")
     public ResponseEntity<?> setRole(@RequestHeader(value = "Authorization", required = false) String auth,
-                                     @PathVariable("id") Long id,
-                                     @RequestParam("role") int role) {
+            @PathVariable("id") Long id,
+            @RequestParam("role") int role) {
         try {
             Claims claims = parseAuth(auth);
             Boolean isAdmin = claims.get("isAdmin", Boolean.class);
@@ -166,8 +188,8 @@ public class UserController {
      */
     @PutMapping("/{id}/set-status")
     public ResponseEntity<?> setStatus(@RequestHeader(value = "Authorization", required = false) String auth,
-                                       @PathVariable("id") Long id,
-                                       @RequestParam("status") Byte status) {
+            @PathVariable("id") Long id,
+            @RequestParam("status") Byte status) {
         try {
             Claims claims = parseAuth(auth);
             Boolean isAdmin = claims.get("isAdmin", Boolean.class);

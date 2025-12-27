@@ -30,6 +30,9 @@ public class UserService {
         if (user == null || user.getUsername() == null || user.getPassword() == null) {
             throw new IllegalArgumentException("username and password are required");
         }
+        if (user.getEmail() == null || user.getRealName() == null || user.getPhone() == null || user.getRole() == 0) {
+            throw new IllegalArgumentException("email, realName, phone, role are required");
+        }
         User exist = userMapper.findByUsername(user.getUsername());
         if (exist != null) {
             throw new IllegalArgumentException("username already exists");
@@ -42,6 +45,40 @@ public class UserService {
         user.setCreateTime(LocalDateTime.now());
         userMapper.insertUser(user);
         // build a safe response object (do not expose password)
+        User resp = new User();
+        resp.setId(user.getId());
+        resp.setUsername(user.getUsername());
+        resp.setRealName(user.getRealName());
+        resp.setEmail(user.getEmail());
+        resp.setPhone(user.getPhone());
+        resp.setAvatar(user.getAvatar());
+        resp.setStatus(user.getStatus());
+        resp.setCreateTime(user.getCreateTime());
+        resp.setRole(user.getRole());
+        return resp;
+    }
+
+    /**
+     * 仅管理员新建用户（可指定角色）
+     */
+    public User createUserByAdmin(User user) {
+        if (user == null || user.getUsername() == null || user.getPassword() == null
+                || user.getEmail() == null || user.getRealName() == null
+                || user.getPhone() == null || user.getRole() == 0) {
+            throw new IllegalArgumentException("email, username, realName, phone, role, password are required");
+        }
+        User exist = userMapper.findByUsername(user.getUsername());
+        if (exist != null) {
+            throw new IllegalArgumentException("username already exists");
+        }
+        String hashed = passwordEncoder.encode(user.getPassword());
+        user.setPassword(hashed);
+        if (user.getStatus() == null) {
+            user.setStatus((byte) 1);
+        }
+        user.setCreateTime(LocalDateTime.now());
+        userMapper.insertUser(user);
+        // 返回安全视图
         User resp = new User();
         resp.setId(user.getId());
         resp.setUsername(user.getUsername());
