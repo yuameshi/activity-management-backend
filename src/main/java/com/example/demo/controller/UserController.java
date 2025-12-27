@@ -85,26 +85,19 @@ public class UserController {
     }
 
     /**
-     * 修改用户信息（仅管理员或本人）
-     * 请求体为用户的可修改字段（realName, email, phone, avatar, password, status）
-     * 管理员可修改 status；普通用户不能修改 status。
-     * 通过 query param targetId 指定要修改的用户（管理员可以指定，普通用户忽略并仅修改自己）
+     * 修改用户信息（仅本人）
+     * 仅允许修改用户名、真实姓名、邮箱、手机号和密码（username, realName, email, phone, password）
      */
     @PutMapping("/update")
     public ResponseEntity<?> update(@RequestHeader(value = "Authorization", required = false) String auth,
-            @RequestParam(value = "targetId", required = false) Long targetId,
-            @RequestBody User update) {
+                                    @RequestBody User update) {
         try {
             Claims claims = parseAuth(auth);
             Long requesterId = ((Number) claims.get("id")).longValue();
             String requesterUsername = (String) claims.get("username");
-            Boolean isAdmin = claims.get("isAdmin", Boolean.class);
-            Long tid = targetId == null ? requesterId : targetId;
 
-            // 前置权限校验：非管理员且非本人禁止修改 —— 使控制器在 service 未模拟抛异常时仍然能返回 403（满足单元测试预期）
-            if ((isAdmin == null || !isAdmin) && !requesterId.equals(tid)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
-            }
+            // 只能本人修改，管理员也不行
+            Long tid = requesterId;
 
             User updated = userService.updateUser(requesterId, requesterUsername, tid, update);
             return ResponseEntity.ok(updated);

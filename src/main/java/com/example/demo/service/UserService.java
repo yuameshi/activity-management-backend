@@ -247,21 +247,16 @@ public class UserService {
         if (target == null) {
             throw new IllegalArgumentException("user not found");
         }
-        // apply allowed updates
+        // 只允许修改 username, realName, email, phone, password
+        if (update.getUsername() != null)
+            target.setUsername(update.getUsername());
         if (update.getRealName() != null)
             target.setRealName(update.getRealName());
         if (update.getEmail() != null)
             target.setEmail(update.getEmail());
         if (update.getPhone() != null)
             target.setPhone(update.getPhone());
-        if (update.getAvatar() != null)
-            target.setAvatar(update.getAvatar());
-        if (update.getStatus() != null) {
-            // only admin can change status
-            target.setStatus(update.getStatus());
-        }
         if (update.getPassword() != null && !update.getPassword().isEmpty()) {
-            // allow password change for owner or admin
             String hashed = passwordEncoder.encode(update.getPassword());
             target.setPassword(hashed);
         }
