@@ -51,9 +51,14 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest req) {
         try {
             Map<String, Object> result = userService.login(req.getUsername(), req.getPassword());
-            // 适配avatar字段
+            // 检查用户状态
             if (result.containsKey("user") && result.get("user") instanceof User) {
                 User u = (User) result.get("user");
+                if (u.getStatus() == null || u.getStatus() != 1) {
+                    // 状态不是1，禁止登录且不返回token和其他信息
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "用户状态异常，禁止登录"));
+                }
+                // 只在状态为1时返回token和其他信息
                 result.put("user", new User() {{
                     setId(u.getId());
                     setUsername(u.getUsername());
@@ -65,8 +70,10 @@ public class AuthController {
                     setCreateTime(u.getCreateTime());
                     setRole(u.getRole());
                 }});
+                return ResponseEntity.ok(result);
             }
-            return ResponseEntity.ok(result);
+            // 理论上不会走到这里
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "登录失败"));
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
         } catch (Exception ex) {

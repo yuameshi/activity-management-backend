@@ -10,7 +10,7 @@ import java.util.Date;
 public class JwtUtil {
 
     private static final String SECRET = "JWTSecretKey";
-    private static final long EXPIRATION_MS = 1000L * 60 * 60 * 24 * 7; // 7 days
+    private static final long EXPIRATION_MS = 1000L * 60 * 60 * 24 * 1; // 1 day
 
     public static String generateToken(Long userId, String username, Boolean isAdmin) {
         Date now = new Date();
