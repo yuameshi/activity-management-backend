@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.mapper.ImageMapper">
+
+    <insert id="insertImage" parameterType="com.example.demo.model.Image" useGeneratedKeys="true"
+        keyProperty="id"> INSERT INTO images (path, uploader_uid) VALUES (#{path}, #{uploaderUid}) </insert>
+
+    <select id="selectImageById" parameterType="int" resultType="com.example.demo.model.Image">
+        SELECT id, path, uploader_uid FROM images WHERE id = #{id} </select>
+
+</mapper>
