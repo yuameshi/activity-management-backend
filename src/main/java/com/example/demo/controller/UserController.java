@@ -59,7 +59,7 @@ public class UserController {
 
     /**
      * 获取用户信息
-     * 可选参数 id：管理员可以查询任意用户，普通用户只能查询本人。不传 id 则返回当前登录用户信息。
+     * 可选参数 id：管理员可以查询任意用户，普通用户只能查询本人或其他人有限信息。不传 id 则返回当前登录用户信息。
      */
     @GetMapping("/info")
     public ResponseEntity<?> info(@RequestHeader(value = "Authorization", required = false) String auth,
@@ -70,12 +70,19 @@ public class UserController {
             Boolean isAdmin = claims.get("isAdmin", Boolean.class);
 
             Long targetId = id == null ? requesterId : id;
-            if ((isAdmin == null || !isAdmin) && !requesterId.equals(targetId)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
-            }
+            // 只做权限校验用于修改、删除等操作，查询时放开
             User u = userService.getById(targetId);
             if (u == null)
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found"));
+            // 非管理员且非本人，只返回注册时间、邮箱、真实姓名
+            if ((isAdmin == null || !isAdmin) && !requesterId.equals(targetId)) {
+                Map<String, Object> limited = Map.of(
+                    "realName", u.getRealName(),
+                    "email", u.getEmail(),
+                    "createTime", u.getCreateTime()
+                );
+                return ResponseEntity.ok(limited);
+            }
             return ResponseEntity.ok(u);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
