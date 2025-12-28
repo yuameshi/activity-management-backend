@@ -5,6 +5,9 @@ import com.example.demo.model.User;
 import com.example.demo.util.JwtUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.example.demo.service.ImageService;
+import com.example.demo.model.Image;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,6 +17,9 @@ import java.util.Map;
 
 @Service
 public class UserService {
+
+    @Autowired
+    private ImageService imageService;
 
     /**
      * 根据用户名获取用户（安全视图，不返回密码）
@@ -335,6 +341,39 @@ public class UserService {
         user.setStatus(status);
         userMapper.updateUser(user);
         // 返回安全视图
+        User safe = new User();
+        safe.setId(user.getId());
+        safe.setUsername(user.getUsername());
+        safe.setRealName(user.getRealName());
+        safe.setEmail(user.getEmail());
+        safe.setPhone(user.getPhone());
+        safe.setAvatar(user.getAvatar());
+        safe.setStatus(user.getStatus());
+        safe.setCreateTime(user.getCreateTime());
+        safe.setRole(user.getRole());
+        return safe;
+    }
+    /**
+     * 用户更新头像
+     * @param userId 用户ID
+     * @param imageId 图片ID
+     * @return 更新后的用户安全视图
+     */
+    public User updateAvatar(Long userId, Integer imageId) {
+        if (userId == null || imageId == null) {
+            throw new IllegalArgumentException("userId和imageId不能为空");
+        }
+        User user = userMapper.findById(userId);
+        if (user == null) {
+            throw new IllegalArgumentException("用户不存在");
+        }
+        Image image = imageService.getImageById(imageId);
+        if (image == null) {
+            throw new IllegalArgumentException("图片不存在");
+        }
+        user.setAvatar(image.getPath());
+        userMapper.updateUser(user);
+
         User safe = new User();
         safe.setId(user.getId());
         safe.setUsername(user.getUsername());

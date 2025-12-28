@@ -244,4 +244,35 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", ex.getMessage()));
         }
     }
+    /**
+     * 用户更新头像
+     * 仅允许本人操作
+     * @param auth 认证
+     * @param imageId 图片ID
+     */
+    @PutMapping("/update-avatar")
+    public ResponseEntity<?> updateAvatar(
+            @RequestHeader(value = "Authorization", required = false) String auth,
+            @RequestParam("imageId") Integer imageId) {
+        try {
+            Claims claims = parseAuth(auth);
+            Long requesterId = ((Number) claims.get("id")).longValue();
+            // 只能本人操作
+            User updated = userService.updateAvatar(requesterId, imageId);
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException ex) {
+            String msg = ex.getMessage() == null ? "" : ex.getMessage().toLowerCase();
+            if (msg.contains("forbidden")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", ex.getMessage()));
+            } else if (msg.contains("not found") || msg.contains("不存在")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", ex.getMessage()));
+            } else if (msg.contains("missing") || msg.contains("required") || msg.contains("invalid") || msg.contains("不能为空")) {
+                return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", ex.getMessage()));
+            }
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", ex.getMessage()));
+        }
+    }
 }
