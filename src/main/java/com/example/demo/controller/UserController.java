@@ -252,20 +252,30 @@ public class UserController {
         }
     }
     /**
-     * 用户更新头像
-     * 仅允许本人操作
+     * 用户或管理员更新头像
+     * 管理员可指定userId，普通用户只能操作自己
      * @param auth 认证
      * @param imageId 图片ID
+     * @param userId 用户ID（可选，管理员可指定）
      */
     @PutMapping("/update-avatar")
     public ResponseEntity<?> updateAvatar(
             @RequestHeader(value = "Authorization", required = false) String auth,
-            @RequestParam("imageId") Integer imageId) {
+            @RequestParam("imageId") Integer imageId,
+            @RequestParam(value = "userId", required = false) Long userId) {
         try {
             Claims claims = parseAuth(auth);
             Long requesterId = ((Number) claims.get("id")).longValue();
-            // 只能本人操作
-            User updated = userService.updateAvatar(requesterId, imageId);
+            Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+
+            Long targetUserId = userId != null ? userId : requesterId;
+
+            // 如果不是管理员，且请求的userId不是自己，禁止
+            if ((isAdmin == null || !isAdmin) && !requesterId.equals(targetUserId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
+            }
+
+            User updated = userService.updateAvatar(targetUserId, imageId);
             return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException ex) {
             String msg = ex.getMessage() == null ? "" : ex.getMessage().toLowerCase();
