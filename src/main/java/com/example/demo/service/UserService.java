@@ -6,7 +6,6 @@ import com.example.demo.util.JwtUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.example.demo.service.ImageService;
 import com.example.demo.model.Image;
 
 import java.time.LocalDateTime;
