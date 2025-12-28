@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ public class ActivityController {
      * @return 活动列表
      */
     @GetMapping("/list")
-    public List<Activity> list() {
+    public List<Activity> list(@RequestHeader(value = "Authorization", required = false) String auth, jakarta.servlet.http.HttpServletRequest request) {
         return activityService.getAll();
     }
 
@@ -45,7 +46,14 @@ public class ActivityController {
      * @return 活动或 null（若 id 为 null 或不存在）
      */
     @GetMapping("/{id}")
-    public ResponseEntity<?> get(@PathVariable Long id) {
+    public ResponseEntity<?> get(@PathVariable Long id, @RequestHeader(value = "Authorization", required = false) String auth, jakarta.servlet.http.HttpServletRequest request) {
+        Long userId = null;
+        try {
+            if (auth != null && auth.startsWith("Bearer ")) {
+                userId = com.example.demo.util.JwtUtil.parseToken(auth.substring(7)).get("id", Long.class);
+            }
+        } catch (Exception ignored) {}
+        com.example.demo.util.OperationLogUtil.log(userId, String.format("获取活动详情，活动ID=%d", id), id, "Activity", request);
         if (id == null)
             return ResponseEntity.badRequest().body(Map.of("error", "id is required"));
         Activity r = activityService.getById(id);
@@ -61,7 +69,14 @@ public class ActivityController {
      * @return 受影响行数
      */
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody Activity activity) {
+    public ResponseEntity<?> create(@RequestBody Activity activity, @RequestHeader(value = "Authorization", required = false) String auth, jakarta.servlet.http.HttpServletRequest request) {
+        Long userId = null;
+        try {
+            if (auth != null && auth.startsWith("Bearer ")) {
+                userId = com.example.demo.util.JwtUtil.parseToken(auth.substring(7)).get("id", Long.class);
+            }
+        } catch (Exception ignored) {}
+        com.example.demo.util.OperationLogUtil.log(userId, "创建活动", null, "Activity", request);
         if (activity == null)
             return ResponseEntity.badRequest().body(Map.of("affected", 0));
         int res = activityService.createActivity(activity);
@@ -77,7 +92,16 @@ public class ActivityController {
      */
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@PathVariable Long id,
-            @RequestBody Activity activity) {
+            @RequestBody Activity activity,
+            jakarta.servlet.http.HttpServletRequest request) {
+        Long userId = null;
+        try {
+            String auth = request.getHeader("Authorization");
+            if (auth != null && auth.startsWith("Bearer ")) {
+                userId = com.example.demo.util.JwtUtil.parseToken(auth.substring(7)).get("id", Long.class);
+            }
+        } catch (Exception ignored) {}
+        com.example.demo.util.OperationLogUtil.log(userId, String.format("更新活动，活动ID=%d", id), id, "Activity", request);
         if (id == null || activity == null)
             return ResponseEntity.badRequest().body(Map.of("affected", 0));
         activity.setId(id);
@@ -92,7 +116,14 @@ public class ActivityController {
      * @return 受影响行数
      */
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable Long id, @RequestHeader(value = "Authorization", required = false) String auth, jakarta.servlet.http.HttpServletRequest request) {
+        Long userId = null;
+        try {
+            if (auth != null && auth.startsWith("Bearer ")) {
+                userId = com.example.demo.util.JwtUtil.parseToken(auth.substring(7)).get("id", Long.class);
+            }
+        } catch (Exception ignored) {}
+        com.example.demo.util.OperationLogUtil.log(userId, String.format("删除活动，活动ID=%d", id), id, "Activity", request);
         if (id == null)
             return ResponseEntity.badRequest().body(Map.of("affected", 0));
         int res = activityService.deleteById(id);
@@ -106,7 +137,7 @@ public class ActivityController {
      * @return 活动列表
      */
     @GetMapping("/search")
-    public List<Activity> searchByTitle(String title) {
+    public List<Activity> searchByTitle(String title, @RequestHeader(value = "Authorization", required = false) String auth, jakarta.servlet.http.HttpServletRequest request) {
         return activityService.searchByTitle(title);
     }
 }

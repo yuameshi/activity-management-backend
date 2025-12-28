@@ -24,17 +24,22 @@ public class UserController {
     @GetMapping("/admin_search")
     public ResponseEntity<?> searchUser(
             @RequestHeader(value = "Authorization", required = false) String auth,
-            @RequestParam(value = "query", required = false) String query) {
+            @RequestParam(value = "query", required = false) String query,
+            jakarta.servlet.http.HttpServletRequest request) {
         try {
             Claims claims = parseAuth(auth);
             Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+            Long userId = claims.get("id", Long.class);
             if (isAdmin == null || !isAdmin) {
+                com.example.demo.util.OperationLogUtil.log(userId, "管理员搜索用户-鉴权失败", null, "User", request);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
             }
             if (query == null || query.isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "query参数不能为空"));
             }
             List<User> users = userService.searchByQuery(query);
+            String logMsg = String.format("管理员搜索用户，搜索值：%s，结果数量：%d", query, users != null ? users.size() : 0);
+            com.example.demo.util.OperationLogUtil.log(userId, logMsg, null, "User", request);
             return ResponseEntity.ok(users);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
@@ -128,14 +133,18 @@ public class UserController {
      * 管理员获取用户列表
      */
     @GetMapping("/list")
-    public ResponseEntity<?> list(@RequestHeader(value = "Authorization", required = false) String auth) {
+    public ResponseEntity<?> list(@RequestHeader(value = "Authorization", required = false) String auth,
+                                  jakarta.servlet.http.HttpServletRequest request) {
         try {
             Claims claims = parseAuth(auth);
             Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+            Long userId = claims.get("id", Long.class);
             if (isAdmin == null || !isAdmin) {
+                com.example.demo.util.OperationLogUtil.log(userId, "管理员获取用户列表-鉴权失败", null, "User", request);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
             }
             List<User> users = userService.listUsers();
+            com.example.demo.util.OperationLogUtil.log(userId, "管理员获取用户列表", null, "User", request);
             return ResponseEntity.ok(users);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
@@ -149,14 +158,19 @@ public class UserController {
      */
     @PostMapping("/create")
     public ResponseEntity<?> createUser(@RequestHeader(value = "Authorization", required = false) String auth,
-            @RequestBody User user) {
+            @RequestBody User user,
+            jakarta.servlet.http.HttpServletRequest request) {
         try {
             Claims claims = parseAuth(auth);
             Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+            Long userId = claims.get("id", Long.class);
             if (isAdmin == null || !isAdmin) {
+                com.example.demo.util.OperationLogUtil.log(userId, "管理员新建用户-鉴权失败", null, "User", request);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
             }
             User created = userService.createUserByAdmin(user);
+            String logMsg = String.format("管理员新建用户，用户ID=%d", created.getId());
+            com.example.demo.util.OperationLogUtil.log(userId, logMsg, created.getId(), "User", request);
             return ResponseEntity.ok(created);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
@@ -170,14 +184,19 @@ public class UserController {
      */
     @DeleteMapping("/delete")
     public ResponseEntity<?> delete(@RequestHeader(value = "Authorization", required = false) String auth,
-            @RequestParam(value = "id") Long id) {
+            @RequestParam(value = "id") Long id,
+            jakarta.servlet.http.HttpServletRequest request) {
         try {
             Claims claims = parseAuth(auth);
             Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+            Long userId = claims.get("id", Long.class);
             if (isAdmin == null || !isAdmin) {
+                com.example.demo.util.OperationLogUtil.log(userId, "管理员删除用户-鉴权失败", id, "User", request);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
             }
             userService.deleteUserById(id);
+            String logMsg = String.format("管理员删除用户，用户ID=%d", id);
+            com.example.demo.util.OperationLogUtil.log(userId, logMsg, id, "User", request);
             return ResponseEntity.ok(Map.of("success", true));
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
@@ -192,14 +211,18 @@ public class UserController {
     @PutMapping("/{id}/admin-update")
     public ResponseEntity<?> adminUpdateUser(@RequestHeader(value = "Authorization", required = false) String auth,
             @PathVariable Long id,
-            @RequestBody User update) {
+            @RequestBody User update,
+            jakarta.servlet.http.HttpServletRequest request) {
         try {
             Claims claims = parseAuth(auth);
             Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+            Long userId = claims.get("id", Long.class);
             if (isAdmin == null || !isAdmin) {
+                com.example.demo.util.OperationLogUtil.log(userId, "管理员修改用户信息-鉴权失败", id, "User", request);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
             }
             User updated = userService.adminUpdateUser(id, update);
+            com.example.demo.util.OperationLogUtil.log(userId, "管理员修改用户信息", id, "User", request);
             return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
@@ -214,14 +237,19 @@ public class UserController {
     @PutMapping("/{id}/set-role")
     public ResponseEntity<?> setRole(@RequestHeader(value = "Authorization", required = false) String auth,
             @PathVariable("id") Long id,
-            @RequestParam("role") int role) {
+            @RequestParam("role") int role,
+            jakarta.servlet.http.HttpServletRequest request) {
         try {
             Claims claims = parseAuth(auth);
             Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+            Long userId = claims.get("id", Long.class);
             if (isAdmin == null || !isAdmin) {
+                com.example.demo.util.OperationLogUtil.log(userId, "管理员设置用户角色-鉴权失败", id, "User", request);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
             }
             User updated = userService.setUserRole(id, role);
+            String logMsg = String.format("管理员设置用户角色，用户ID=%d，目标角色ID=%d", id, role);
+            com.example.demo.util.OperationLogUtil.log(userId, logMsg, id, "User", request);
             return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
@@ -236,14 +264,19 @@ public class UserController {
     @PutMapping("/{id}/set-status")
     public ResponseEntity<?> setStatus(@RequestHeader(value = "Authorization", required = false) String auth,
             @PathVariable("id") Long id,
-            @RequestParam("status") Byte status) {
+            @RequestParam("status") Byte status,
+            jakarta.servlet.http.HttpServletRequest request) {
         try {
             Claims claims = parseAuth(auth);
             Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+            Long userId = claims.get("id", Long.class);
             if (isAdmin == null || !isAdmin) {
+                com.example.demo.util.OperationLogUtil.log(userId, "管理员设置用户状态-鉴权失败", id, "User", request);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
             }
             User updated = userService.setUserStatus(id, status);
+            String logMsg = String.format("管理员设置用户状态，用户ID=%d，目标状态ID=%d", id, status);
+            com.example.demo.util.OperationLogUtil.log(userId, logMsg, id, "User", request);
             return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));

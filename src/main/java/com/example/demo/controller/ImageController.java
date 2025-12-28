@@ -37,7 +37,8 @@ public class ImageController {
     public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file,
             @RequestHeader("Authorization") String auth,
             @RequestHeader(value = "Host") String host,
-            @RequestHeader(value = "X-Forwarded-Proto", required = false) String proto) {
+            @RequestHeader(value = "X-Forwarded-Proto", required = false) String proto,
+            jakarta.servlet.http.HttpServletRequest request) {
         try {
             Claims claims = parseAuth(auth);
             Long requesterId = ((Number) claims.get("id")).longValue();
@@ -46,6 +47,7 @@ public class ImageController {
             String baseUrl = scheme + "://" + host;
             String absPath = baseUrl + image.getPath();
             String rawUrl = baseUrl + "/api/image/raw/" + image.getId();
+            com.example.demo.util.OperationLogUtil.log(requesterId, String.format("上传图片，图片ID=%d", image.getId()), image.getId() != null ? image.getId().longValue() : null, "Image", request);
             return ResponseEntity.ok()
                     .body(new UploadResult(image.getId(), absPath, rawUrl));
         } catch (Exception e) {
@@ -57,7 +59,9 @@ public class ImageController {
     // 根据ID查询图片路径
     @GetMapping("/path/{id}")
     public ResponseEntity<?> getPath(@PathVariable Integer id, @RequestHeader(value = "Host") String host,
-            @RequestHeader(value = "X-Forwarded-Proto", required = false) String proto) {
+            @RequestHeader(value = "X-Forwarded-Proto", required = false) String proto,
+            jakarta.servlet.http.HttpServletRequest request) {
+        com.example.demo.util.OperationLogUtil.log(null, String.format("获取图片路径，图片ID=%d", id), id != null ? id.longValue() : null, "Image", request);
         Image image = imageService.getImageById(id);
         if (image == null) {
             return ResponseEntity.notFound().build();
@@ -69,7 +73,8 @@ public class ImageController {
 
     // 根据ID返回图片二进制流
     @GetMapping("/raw/{id}")
-    public ResponseEntity<Resource> getImageRaw(@PathVariable Integer id) {
+    public ResponseEntity<Resource> getImageRaw(@PathVariable Integer id, jakarta.servlet.http.HttpServletRequest request) {
+        com.example.demo.util.OperationLogUtil.log(null, String.format("获取图片二进制流，图片ID=%d", id), id != null ? id.longValue() : null, "Image", request);
         Image image = imageService.getImageById(id);
         if (image == null) {
             return ResponseEntity.notFound().build();
@@ -88,7 +93,7 @@ public class ImageController {
             contentType = MediaType.IMAGE_JPEG_VALUE;
         else if (path.endsWith(".gif"))
             contentType = MediaType.IMAGE_GIF_VALUE;
-
+    
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getName() + "\"")
                 .contentType(MediaType.parseMediaType(contentType))
@@ -97,7 +102,8 @@ public class ImageController {
 
     // 仅管理员可用，获取图片元信息
     @GetMapping("/meta/{id}")
-    public ResponseEntity<?> getMeta(@PathVariable Integer id, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> getMeta(@PathVariable Integer id, @RequestHeader("Authorization") String authHeader,
+                                     jakarta.servlet.http.HttpServletRequest request) {
         // 简单示例：假设管理员uid为1，实际应结合权限系统
         Long uid = null;
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -111,6 +117,7 @@ public class ImageController {
         if (uid == null || uid != 1L) {
             return ResponseEntity.status(403).body("仅管理员可用");
         }
+        com.example.demo.util.OperationLogUtil.log(uid, String.format("获取图片元信息，图片ID=%d", id), id != null ? id.longValue() : null, "Image", request);
         Image image = imageService.getImageById(id);
         if (image == null) {
             return ResponseEntity.notFound().build();

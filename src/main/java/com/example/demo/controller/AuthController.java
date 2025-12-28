@@ -25,9 +25,10 @@ public class AuthController {
     }
 
     @PostMapping("/user/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
+    public ResponseEntity<?> register(@RequestBody User user, jakarta.servlet.http.HttpServletRequest request) {
         try {
             User created = userService.register(user);
+            com.example.demo.util.OperationLogUtil.log(created.getId(), "用户注册", created.getId(), "User", request);
             // 适配avatar字段
             return ResponseEntity.status(HttpStatus.CREATED).body(new User() {{
                 setId(created.getId());
@@ -48,7 +49,7 @@ public class AuthController {
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest req) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest req, jakarta.servlet.http.HttpServletRequest request) {
         try {
             Map<String, Object> result = userService.login(req.getUsername(), req.getPassword());
             // 检查用户状态
@@ -56,6 +57,7 @@ public class AuthController {
                 User u = (User) result.get("user");
                 if (u.getStatus() == null || u.getStatus() != 1) {
                     // 状态不是1，禁止登录且不返回token和其他信息
+                    com.example.demo.util.OperationLogUtil.log(u.getId(), "用户登录-状态异常", u.getId(), "User", request);
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "用户状态异常，禁止登录"));
                 }
                 // 只在状态为1时返回token和其他信息
@@ -70,6 +72,7 @@ public class AuthController {
                     setCreateTime(u.getCreateTime());
                     setRole(u.getRole());
                 }});
+                com.example.demo.util.OperationLogUtil.log(u.getId(), "用户登录", u.getId(), "User", request);
                 return ResponseEntity.ok(result);
             }
             // 理论上不会走到这里

@@ -18,11 +18,11 @@ public class HelloController {
 	}
 
 	@GetMapping("/api/hello")
-	public List<HelloEntity> helloApi() {
+	public List<HelloEntity> helloApi(@org.springframework.web.bind.annotation.RequestHeader(value = "Authorization", required = false) String auth, jakarta.servlet.http.HttpServletRequest request) {
 		return helloService.findAll();
 	}
 	@GetMapping("/api/hello-desc")
-	public List<HelloEntity> helloDescApi() {
+	public List<HelloEntity> helloDescApi(@org.springframework.web.bind.annotation.RequestHeader(value = "Authorization", required = false) String auth, jakarta.servlet.http.HttpServletRequest request) {
 		return helloService.findAllDesc();
 	}
 }

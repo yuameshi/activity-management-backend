@@ -136,6 +136,7 @@ public class AttendanceController {
 
         // 1. 校验 JWT 并判断角色
         String authHeader = request.getHeader("Authorization");
+        Long userId = null;
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "未提供有效的 JWT");
             return;
@@ -144,6 +145,7 @@ public class AttendanceController {
         Claims claims;
         try {
             claims = JwtUtil.parseToken(token);
+            userId = claims.get("id", Long.class);
         } catch (Exception e) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT 无效");
             return;
@@ -153,6 +155,10 @@ public class AttendanceController {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "仅管理员可访问");
             return;
         }
+
+        // 日志记录
+        String logMsg = String.format("管理员生成签到码，用户ID=%d，活动ID=%d", userId, activityId);
+        com.example.demo.util.OperationLogUtil.log(userId, logMsg, activityId, "Attendance", request);
 
         // 2. SSE 响应设置
         response.setContentType(MediaType.TEXT_EVENT_STREAM_VALUE);
@@ -221,7 +227,7 @@ public class AttendanceController {
     /**
      * 签到接口：支持扫码与手动签到，校验码有效性，写入数据库。
      * 普通用户只能为自己签到，管理员可为他人签到。
-     * 
+     *
      * @param req     签到请求体
      * @param request HTTP 请求
      * @return 统一响应对象
@@ -230,6 +236,7 @@ public class AttendanceController {
             @RequestBody SignRequest req,
             HttpServletRequest request) throws NoSuchAlgorithmException {
         String authHeader = request.getHeader("Authorization");
+        Long userId = null;
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(401).body(error(401, "未提供有效的 JWT"));
         }
@@ -237,6 +244,7 @@ public class AttendanceController {
         Claims claims;
         try {
             claims = JwtUtil.parseToken(token);
+            userId = claims.get("id", Long.class);
         } catch (Exception e) {
             return ResponseEntity.status(401).body(error(401, "JWT 无效"));
         }
@@ -273,6 +281,8 @@ public class AttendanceController {
         }
 
         if (attendanceService.getByUserIdAndActivityId(signUserId, req.activityId) != null) {
+            String logMsg = String.format("用户签到，用户ID=%d，活动ID=%d（重复签到）", signUserId, req.activityId);
+            com.example.demo.util.OperationLogUtil.log(userId, logMsg, null, "Attendance", request);
             return ResponseEntity.ok(ok(java.util.Map.of("message", "签到成功", "act", act)));
         }
 
@@ -284,6 +294,8 @@ public class AttendanceController {
 
         int rows = attendanceService.createAttendance(attendance);
         if (rows > 0) {
+            String logMsg = String.format("用户签到，用户ID=%d，活动ID=%d，签到方式=%s", signUserId, req.activityId, req.signType);
+            com.example.demo.util.OperationLogUtil.log(userId, logMsg, null, "Attendance", request);
             return ResponseEntity.ok(ok(java.util.Map.of("message", "签到成功", "act", act)));
         } else {
             return ResponseEntity.status(500).body(error(500, "签到失败"));
@@ -296,18 +308,21 @@ public class AttendanceController {
     @PostMapping("/add")
     public ResponseEntity<Object> adminAddAttendance(@RequestBody Attendance attendance, HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
+        Long userId = null;
+        Claims claims = null;
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(401).body(error(401, "未提供有效的 JWT"));
         }
         String token = authHeader.substring(7);
-        Claims claims;
         try {
             claims = JwtUtil.parseToken(token);
+            userId = claims.get("id", Long.class);
         } catch (Exception e) {
             return ResponseEntity.status(401).body(error(401, "JWT 无效"));
         }
         Boolean isAdmin = claims.get("isAdmin", Boolean.class);
         if (isAdmin == null || !isAdmin) {
+            com.example.demo.util.OperationLogUtil.log(userId, "管理员新增签到记录-鉴权失败", attendance.getId(), "Attendance", request);
             return ResponseEntity.status(403).body(error(403, "仅管理员可操作"));
         }
         Attendance createdAttendance = attendanceService.getByUserIdAndActivityId(attendance.getUserId(),
@@ -319,6 +334,9 @@ public class AttendanceController {
             if (createdAttendance == null) {
                 return ResponseEntity.status(500).body(error(500, "添加失败"));
             } else {
+                String logMsg = String.format("管理员新增签到记录，签到ID=%d，用户ID=%d，活动ID=%d",
+                    createdAttendance.getId(), createdAttendance.getUserId(), createdAttendance.getActivityId());
+                com.example.demo.util.OperationLogUtil.log(userId, logMsg, createdAttendance.getId(), "Attendance", request);
                 Map<String, Object> responseData = new HashMap<>();
                 responseData.put("id", createdAttendance.getId());
                 responseData.put("activityId", createdAttendance.getActivityId());
@@ -350,22 +368,27 @@ public class AttendanceController {
     @DeleteMapping("/delete")
     public ResponseEntity<Object> adminDeleteAttendance(@RequestParam Long id, HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
+        Long userId = null;
+        Claims claims = null;
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(401).body(error(401, "未提供有效的 JWT"));
         }
         String token = authHeader.substring(7);
-        Claims claims;
         try {
             claims = JwtUtil.parseToken(token);
+            userId = claims.get("id", Long.class);
         } catch (Exception e) {
             return ResponseEntity.status(401).body(error(401, "JWT 无效"));
         }
         Boolean isAdmin = claims.get("isAdmin", Boolean.class);
         if (isAdmin == null || !isAdmin) {
+            com.example.demo.util.OperationLogUtil.log(userId, "管理员删除签到记录-鉴权失败", id, "Attendance", request);
             return ResponseEntity.status(403).body(error(403, "仅管理员可操作"));
         }
         int rows = attendanceService.deleteAttendanceById(id);
         if (rows > 0) {
+            String logMsg = String.format("管理员删除签到记录，签到ID=%d", id);
+            com.example.demo.util.OperationLogUtil.log(userId, logMsg, id, "Attendance", request);
             return ResponseEntity.ok(ok("签到记录删除成功"));
         } else {
             return ResponseEntity.status(404).body(error(404, "记录不存在或删除失败"));
