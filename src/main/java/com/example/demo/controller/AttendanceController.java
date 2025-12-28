@@ -110,6 +110,7 @@ public class AttendanceController {
             User user = userService.getById(attendance.getUserId());
             attendenceCopy.put("username", user.getUsername());
             attendenceCopy.put("userRealName", user.getRealName());
+            attendenceCopy.put("userAvatar", user.getAvatar());
             attendanceListReturn.add(attendenceCopy);
         }
         return attendanceListReturn;

@@ -192,6 +192,9 @@ public class UserService {
         safe.setRealName(user.getRealName());
         safe.setEmail(user.getEmail());
         safe.setPhone(user.getPhone());
+        safe.setAvatar(user.getAvatar());
+        safe.setStatus(user.getStatus());
+        safe.setCreateTime(user.getCreateTime());
         safe.setRole(user.getRole());
         result.put("token", token);
         result.put("user", safe);
