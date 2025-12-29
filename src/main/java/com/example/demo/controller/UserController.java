@@ -11,16 +11,26 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-/**
- * 用户相关接口：信息查询、修改、列表（管理员）
- */
+ // 用户接口：提供信息查询、个人修改和管理员管理操作。
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
 
-    /**
-     * 按用户名搜索用户（仅管理员）
-     */
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    private Claims parseAuth(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("missing or invalid Authorization header");
+        }
+        String token = authHeader.substring("Bearer ".length());
+        return JwtUtil.parseToken(token);
+    }
+
+    // 管理员按用户名搜索用户
     @GetMapping("/admin_search")
     public ResponseEntity<?> searchUser(
             @RequestHeader(value = "Authorization", required = false) String auth,
@@ -48,24 +58,7 @@ public class UserController {
         }
     }
 
-    private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
-    private Claims parseAuth(String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("missing or invalid Authorization header");
-        }
-        String token = authHeader.substring("Bearer ".length());
-        return JwtUtil.parseToken(token);
-    }
-
-    /**
-     * 获取用户信息
-     * 可选参数 id：管理员可以查询任意用户，普通用户只能查询本人或其他人有限信息。不传 id 则返回当前登录用户信息。
-     */
+    // 获取用户信息，非管理员查看他人时只返回有限字段
     @GetMapping("/info")
     public ResponseEntity<?> info(@RequestHeader(value = "Authorization", required = false) String auth,
             @RequestParam(value = "id", required = false) Long id) {
@@ -75,11 +68,9 @@ public class UserController {
             Boolean isAdmin = claims.get("isAdmin", Boolean.class);
 
             Long targetId = id == null ? requesterId : id;
-            // 只做权限校验用于修改、删除等操作，查询时放开
             User u = userService.getById(targetId);
             if (u == null)
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found"));
-            // 非管理员且非本人，只返回注册时间、邮箱、真实姓名
             if ((isAdmin == null || !isAdmin) && !requesterId.equals(targetId)) {
                 Map<String, Object> limited = Map.of(
                     "realName", u.getRealName(),
@@ -96,10 +87,7 @@ public class UserController {
         }
     }
 
-    /**
-     * 修改用户信息（仅本人）
-     * 仅允许修改用户名、真实姓名、邮箱、手机号和密码（username, realName, email, phone, password）
-     */
+    // 仅允许本人修改指定字段
     @PutMapping("/update")
     public ResponseEntity<?> update(@RequestHeader(value = "Authorization", required = false) String auth,
                                     @RequestBody User update) {
@@ -108,9 +96,7 @@ public class UserController {
             Long requesterId = ((Number) claims.get("id")).longValue();
             String requesterUsername = (String) claims.get("username");
 
-            // 只能本人修改，管理员也不行
             Long tid = requesterId;
-
             User updated = userService.updateUser(requesterId, requesterUsername, tid, update);
             return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException ex) {
@@ -129,9 +115,7 @@ public class UserController {
         }
     }
 
-    /**
-     * 管理员获取用户列表
-     */
+    // 管理员获取用户列表
     @GetMapping("/list")
     public ResponseEntity<?> list(@RequestHeader(value = "Authorization", required = false) String auth,
                                   jakarta.servlet.http.HttpServletRequest request) {
@@ -153,9 +137,7 @@ public class UserController {
         }
     }
 
-    /**
-     * 新建用户（仅管理员）
-     */
+    // 管理员新建用户
     @PostMapping("/create")
     public ResponseEntity<?> createUser(@RequestHeader(value = "Authorization", required = false) String auth,
             @RequestBody User user,
@@ -179,9 +161,7 @@ public class UserController {
         }
     }
 
-    /**
-     * 删除用户（仅管理员）
-     */
+    // 管理员删除用户
     @DeleteMapping("/delete")
     public ResponseEntity<?> delete(@RequestHeader(value = "Authorization", required = false) String auth,
             @RequestParam(value = "id") Long id,
@@ -205,9 +185,7 @@ public class UserController {
         }
     }
 
-    /**
-     * 管理员专用：修改用户所有字段（除ID）
-     */
+    // 管理员修改用户（除ID）
     @PutMapping("/{id}/admin-update")
     public ResponseEntity<?> adminUpdateUser(@RequestHeader(value = "Authorization", required = false) String auth,
             @PathVariable Long id,
@@ -231,9 +209,7 @@ public class UserController {
         }
     }
 
-    /**
-     * 管理员设置用户角色
-     */
+    // 管理员设置用户角色
     @PutMapping("/{id}/set-role")
     public ResponseEntity<?> setRole(@RequestHeader(value = "Authorization", required = false) String auth,
             @PathVariable("id") Long id,
@@ -258,9 +234,7 @@ public class UserController {
         }
     }
 
-    /**
-     * 管理员设置用户状态
-     */
+    // 管理员设置用户状态
     @PutMapping("/{id}/set-status")
     public ResponseEntity<?> setStatus(@RequestHeader(value = "Authorization", required = false) String auth,
             @PathVariable("id") Long id,
@@ -284,13 +258,8 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", ex.getMessage()));
         }
     }
-    /**
-     * 用户或管理员更新头像
-     * 管理员可指定userId，普通用户只能操作自己
-     * @param auth 认证
-     * @param imageId 图片ID
-     * @param userId 用户ID（可选，管理员可指定）
-     */
+
+    // 用户或管理员更新头像；管理员可指定 userId
     @PutMapping("/update-avatar")
     public ResponseEntity<?> updateAvatar(
             @RequestHeader(value = "Authorization", required = false) String auth,
@@ -303,7 +272,6 @@ public class UserController {
 
             Long targetUserId = userId != null ? userId : requesterId;
 
-            // 如果不是管理员，且请求的userId不是自己，禁止
             if ((isAdmin == null || !isAdmin) && !requesterId.equals(targetUserId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
             }

@@ -20,10 +20,6 @@ public interface ActivityMapper {
 
     int deleteById(@Param("id") Long id);
 
-    /**
-     * 根据标题模糊搜索活动
-     * @param title 标题关键字
-     * @return 活动列表
-     */
+    // 根据标题模糊搜索活动
     java.util.List<Activity> searchByTitle(@Param("title") String title);
 }

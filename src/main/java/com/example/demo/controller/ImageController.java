@@ -32,7 +32,7 @@ public class ImageController {
         return JwtUtil.parseToken(token);
     }
 
-    // 上传图片接口
+    // 上传图片
     @PostMapping("/upload")
     public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file,
             @RequestHeader("Authorization") String auth,
@@ -56,7 +56,7 @@ public class ImageController {
         }
     }
 
-    // 根据ID查询图片路径
+    // 查询图片路径
     @GetMapping("/path/{id}")
     public ResponseEntity<?> getPath(@PathVariable Integer id, @RequestHeader(value = "Host") String host,
             @RequestHeader(value = "X-Forwarded-Proto", required = false) String proto,
@@ -71,7 +71,7 @@ public class ImageController {
         return ResponseEntity.ok().body(absPath);
     }
 
-    // 根据ID返回图片二进制流
+    // 返回图片二进制流
     @GetMapping("/raw/{id}")
     public ResponseEntity<Resource> getImageRaw(@PathVariable Integer id, jakarta.servlet.http.HttpServletRequest request) {
         com.example.demo.util.OperationLogUtil.log(null, String.format("获取图片二进制流，图片ID=%d", id), id != null ? id.longValue() : null, "Image", request);
@@ -86,7 +86,7 @@ public class ImageController {
         }
         FileSystemResource resource = new FileSystemResource(file);
         String contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
-        // 可根据实际需求判断图片类型
+        // 根据文件后缀设置 Content-Type
         if (path.endsWith(".png"))
             contentType = MediaType.IMAGE_PNG_VALUE;
         else if (path.endsWith(".jpg") || path.endsWith(".jpeg"))
@@ -100,7 +100,7 @@ public class ImageController {
                 .body(resource);
     }
 
-    // 仅管理员可用，获取图片元信息
+    // 管理员获取图片元信息
     @GetMapping("/meta/{id}")
     public ResponseEntity<?> getMeta(@PathVariable Integer id, @RequestHeader("Authorization") String authHeader,
                                      jakarta.servlet.http.HttpServletRequest request) {

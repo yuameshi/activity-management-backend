@@ -19,9 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Collections;
 
-/**
- * 活动控制器：列表/详情/创建/更新/删除/审核
- */
+ // 活动相关接口：列出、查看、创建、更新、删除等。
 @RestController
 @RequestMapping("/api/activity")
 public class ActivityController {
@@ -29,31 +27,24 @@ public class ActivityController {
     @Autowired
     private ActivityService activityService;
 
-    /**
-     * 获取所有活动
-     *
-     * @return 活动列表
-     */
+    // 获取所有活动
     @GetMapping("/list")
     public List<Activity> list(@RequestHeader(value = "Authorization", required = false) String auth, jakarta.servlet.http.HttpServletRequest request) {
         return activityService.getAll();
     }
 
-    /**
-     * 根据 id 获取活动详情
-     *
-     * @param id 活动 id
-     * @return 活动或 null（若 id 为 null 或不存在）
-     */
+    // 获取活动详情
     @GetMapping("/{id}")
     public ResponseEntity<?> get(@PathVariable Long id, @RequestHeader(value = "Authorization", required = false) String auth, jakarta.servlet.http.HttpServletRequest request) {
         Long userId = null;
+        // 尝试解析 JWT 获取 userId（若不可用则忽略）
         try {
             if (auth != null && auth.startsWith("Bearer ")) {
                 userId = com.example.demo.util.JwtUtil.parseToken(auth.substring(7)).get("id", Long.class);
             }
         } catch (Exception ignored) {}
         com.example.demo.util.OperationLogUtil.log(userId, String.format("获取活动详情，活动ID=%d", id), id, "Activity", request);
+
         if (id == null)
             return ResponseEntity.badRequest().body(Map.of("error", "id is required"));
         Activity r = activityService.getById(id);
@@ -62,12 +53,7 @@ public class ActivityController {
         return ResponseEntity.ok(r);
     }
 
-    /**
-     * 创建活动
-     *
-     * @param activity 活动实体
-     * @return 受影响行数
-     */
+    // 创建活动
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody Activity activity, @RequestHeader(value = "Authorization", required = false) String auth, jakarta.servlet.http.HttpServletRequest request) {
         Long userId = null;
@@ -77,19 +63,14 @@ public class ActivityController {
             }
         } catch (Exception ignored) {}
         com.example.demo.util.OperationLogUtil.log(userId, "创建活动", null, "Activity", request);
+
         if (activity == null)
             return ResponseEntity.badRequest().body(Map.of("affected", 0));
         int res = activityService.createActivity(activity);
         return ResponseEntity.ok(Map.of("affected", res));
     }
 
-    /**
-     * 更新活动（将 path 中的 id 设置到 activity）
-     *
-     * @param id       活动 id
-     * @param activity 活动实体（更新内容）
-     * @return 受影响行数
-     */
+    // 更新活动（将 path 中的 id 设置到 activity）
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@PathVariable Long id,
             @RequestBody Activity activity,
@@ -102,6 +83,7 @@ public class ActivityController {
             }
         } catch (Exception ignored) {}
         com.example.demo.util.OperationLogUtil.log(userId, String.format("更新活动，活动ID=%d", id), id, "Activity", request);
+
         if (id == null || activity == null)
             return ResponseEntity.badRequest().body(Map.of("affected", 0));
         activity.setId(id);
@@ -109,12 +91,7 @@ public class ActivityController {
         return ResponseEntity.ok(Map.of("affected", res));
     }
 
-    /**
-     * 删除活动
-     *
-     * @param id 活动 id
-     * @return 受影响行数
-     */
+    // 删除活动
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id, @RequestHeader(value = "Authorization", required = false) String auth, jakarta.servlet.http.HttpServletRequest request) {
         Long userId = null;
@@ -124,18 +101,14 @@ public class ActivityController {
             }
         } catch (Exception ignored) {}
         com.example.demo.util.OperationLogUtil.log(userId, String.format("删除活动，活动ID=%d", id), id, "Activity", request);
+
         if (id == null)
             return ResponseEntity.badRequest().body(Map.of("affected", 0));
         int res = activityService.deleteById(id);
         return ResponseEntity.ok(Map.of("affected", res));
     }
 
-    /**
-     * 根据标题模糊搜索活动
-     * 
-     * @param title 标题关键字
-     * @return 活动列表
-     */
+    // 根据标题模糊搜索活动
     @GetMapping("/search")
     public List<Activity> searchByTitle(String title, @RequestHeader(value = "Authorization", required = false) String auth, jakarta.servlet.http.HttpServletRequest request) {
         return activityService.searchByTitle(title);

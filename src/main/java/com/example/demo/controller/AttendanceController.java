@@ -41,9 +41,7 @@ import java.util.Map;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-/**
- * 签到相关接口。
- */
+ // 签到控制器 — 处理签到码生成、签到及管理员管理签到记录。
 @RestController
 @RequestMapping("/api/attendance")
 public class AttendanceController {
@@ -60,9 +58,10 @@ public class AttendanceController {
         this.userService = userService;
     }
 
+    // 生成基于 TOTP 的 6 位动态码
     public static String getTOTPCode(String secretKey) {
         try {
-            long time = new Date().getTime() / (30 * 1000); // 30秒窗口
+            long time = new Date().getTime() / (30 * 1000);
             byte[] key = new Base32().decode(secretKey);
 
             byte[] data = new byte[8];
@@ -90,17 +89,11 @@ public class AttendanceController {
         }
     }
 
-    /**
-     * 根据活动ID查询签到记录列表。
-     * 
-     * @param activityId 活动ID
-     * @return 签到记录列表
-     */
+     // 根据活动ID查询签到记录，返回包含用户基本信息。
     @GetMapping("/activity/{activityId}")
     public List<Map<String, Object>> getByActivityId(@PathVariable Long activityId) {
         List<Map<String, Object>> attendanceListReturn = new ArrayList<>();
         List<Attendance> attendanceList = attendanceService.getByActivityId(activityId);
-        // map添加签到信息，用户名和用户id
         for (Attendance attendance : attendanceList) {
             Map<String, Object> attendenceCopy = new HashMap<>();
             attendenceCopy.put("id", attendance.getId());
@@ -116,25 +109,17 @@ public class AttendanceController {
         return attendanceListReturn;
     }
 
-    /**
-     * 通过 SSE 推送动态签到码，仅管理员可访问。
-     *
-     * @param request    HTTP 请求
-     * @param response   HTTP 响应
-     * @param activityId 活动ID，类型为 Long，必填。用于指定当前签到码所属的活动，仅做参数校验，不做业务处理。
-     */
+     // 通过 SSE 推送动态签到码（管理员）
     @GetMapping(value = "/generate", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public void generateAttendanceCode(
             HttpServletRequest request,
             HttpServletResponse response,
             @RequestParam("aid") Long activityId) throws IOException {
-        // activityId 基本校验：非空且为正整数
         if (activityId == null || activityId <= 0) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "参数 activityId 必须为正整数且不能为空");
             return;
         }
 
-        // 1. 校验 JWT 并判断角色
         String authHeader = request.getHeader("Authorization");
         Long userId = null;
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -156,19 +141,15 @@ public class AttendanceController {
             return;
         }
 
-        // 日志记录
         String logMsg = String.format("管理员生成签到码，用户ID=%d，活动ID=%d", userId, activityId);
         com.example.demo.util.OperationLogUtil.log(userId, logMsg, activityId, "Attendance", request);
 
-        // 2. SSE 响应设置
         response.setContentType(MediaType.TEXT_EVENT_STREAM_VALUE);
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Cache-Control", "no-cache");
         response.setHeader("Connection", "keep-alive");
 
-        // 3. 推送动态签到码
         try {
-            // SHA-256
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             Activity act = activityService.getById(activityId);
             String input = act.getTitle();
@@ -194,44 +175,18 @@ public class AttendanceController {
                 response.getWriter().write("data: " + data + "\n\n");
                 response.getWriter().flush();
 
-                // 计算距离下一个 30 秒的剩余时间，精准刷新
                 long sleepMillis = 30000 - (epochSeconds % 30) * 1000;
                 if (sleepMillis < 500)
-                    sleepMillis = 500; // 防止极短睡眠
+                    sleepMillis = 500;
                 Thread.sleep(sleepMillis);
             }
         } catch (Exception e) {
-            // 客户端断开等异常无需处理
+            // 忽略客户端断开等异常
         }
     }
 
-    /**
-     * 签到请求体
-     */
-    public static class SignRequest {
-        /** 活动ID */
-        public Long activityId;
-        /** 签到码，仅扫码签到时必填 */
-        public String code;
-        /** 签到方式，"QR" 或 "MANUAL" */
-        public String signType;
-        /** 指定签到用户，仅管理员可用 */
-        public Long userId;
-    }
-
-    /**
-     * 签到接口：支持扫码与手动签到，校验码有效性，写入数据库。
-     * 普通用户只能为自己签到，管理员可为他人签到。
-     */
+     // 签到：支持 QR / MANUAL，两种方式。普通用户仅可为自己签到。
     @PostMapping("/sign")
-    /**
-     * 签到接口：支持扫码与手动签到，校验码有效性，写入数据库。
-     * 普通用户只能为自己签到，管理员可为他人签到。
-     *
-     * @param req     签到请求体
-     * @param request HTTP 请求
-     * @return 统一响应对象
-     */
     public ResponseEntity<Object> signAttendance(
             @RequestBody SignRequest req,
             HttpServletRequest request) throws NoSuchAlgorithmException {
@@ -251,7 +206,6 @@ public class AttendanceController {
         Long jwtUserId = claims.get("id", Long.class);
 
         Long signUserId = jwtUserId;
-        // 只允许给自己签到，包括管理员
         if (req.userId != null && !req.userId.equals(jwtUserId)) {
             return ResponseEntity.status(403).body(error(403, "无权为他人签到"));
         }
@@ -302,9 +256,7 @@ public class AttendanceController {
         }
     }
 
-    /**
-     * 管理员新增签到记录
-     */
+     // 管理员新增签到记录
     @PostMapping("/add")
     public ResponseEntity<Object> adminAddAttendance(@RequestBody Attendance attendance, HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
@@ -362,9 +314,7 @@ public class AttendanceController {
         }
     }
 
-    /**
-     * 管理员删除签到记录
-     */
+     // 管理员删除签到记录
     @DeleteMapping("/delete")
     public ResponseEntity<Object> adminDeleteAttendance(@RequestParam Long id, HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
@@ -395,33 +345,39 @@ public class AttendanceController {
         }
     }
 
-    /** 统一成功响应 */
+     // 统一成功响应
     private Object ok(Object data) {
         return java.util.Collections.singletonMap("data", data);
     }
 
-    /** 统一错误响应 */
+     // 统一错误响应
     private Object error(int code, String msg) {
         java.util.Map<String, Object> map = new java.util.HashMap<>();
         map.put("code", code);
         map.put("msg", msg);
         return map;
     }
-    /**
-     * 根据用户ID查询签到记录，返回活动名称和签到时间
-     */
+
+     // 根据用户ID查询签到记录，返回活动名称和签到时间
     @GetMapping("/user/{userId}/records")
     public List<Map<String, Object>> getAttendanceRecordsByUserId(@PathVariable Long userId) {
         List<Map<String, Object>> result = new ArrayList<>();
         List<Attendance> attendanceList = attendanceService.getByUserId(userId);
         for (Attendance attendance : attendanceList) {
             Map<String, Object> map = new HashMap<>();
-            // 获取活动名称
             Activity activity = activityService.getById(attendance.getActivityId());
             map.put("activityName", activity != null ? activity.getTitle() : null);
             map.put("signTime", attendance.getSignTime());
             result.add(map);
         }
         return result;
+    }
+
+     // 签到请求体
+    public static class SignRequest {
+        public Long activityId;
+        public String code;
+        public String signType;
+        public Long userId;
     }
 }

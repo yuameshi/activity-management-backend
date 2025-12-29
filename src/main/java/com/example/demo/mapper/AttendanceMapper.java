@@ -6,49 +6,21 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-/**
- * 签到表 Mapper。
- */
+ // 签到表 Mapper
 @Mapper
 public interface AttendanceMapper {
-    /**
-     * 插入签到记录
-     * @param attendance 签到实体
-     * @return 受影响行数
-     */
+    // 插入签到记录，返回受影响行数
     int insertAttendance(Attendance attendance);
 
-    /**
-     * 根据活动ID查询签到记录
-     * @param activityId 活动ID
-     * @return 签到记录列表
-     */
+    // 根据活动ID查询签到记录列表
     List<Attendance> findByActivityId(@Param("activityId") Long activityId);
 
-    /**
-     * 根据用户ID查询签到记录
-     * @param userId 用户ID
-     * @return 签到记录列表
-     */
+    // 根据用户ID查询签到记录列表
     List<Attendance> findByUserId(@Param("userId") Long userId);
-    /**
-     * 按活动ID和签到状态筛选签到记录
-     * @param activityId 活动ID
-     * @param status 状态（可选，null为全部）
-     * @return 签到记录列表
-     */
+    // 按活动ID和状态筛选签到记录
     List<Attendance> findByActivityIdAndStatus(@Param("activityId") Long activityId, @Param("status") String status);
-    /**
-     * 根据ID删除签到记录
-     * @param id 签到记录ID
-     * @return 受影响行数
-     */
+    // 根据ID删除签到记录，返回受影响行数
     int deleteAttendanceById(@Param("id") Long id);
-    /**
-     * 根据用户ID和活动ID查找签到记录
-     * @param userId 用户ID
-     * @param activityId 活动ID
-     * @return 签到记录
-     */
+    // 根据用户ID与活动ID查找签到记录
     Attendance findByUserIdAndActivityId(@Param("userId") Long userId, @Param("activityId") Long activityId);
 }

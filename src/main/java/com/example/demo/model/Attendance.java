@@ -6,25 +6,23 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import java.time.LocalDateTime;
 
-/**
- * 签到表实体类。
- */
+ // 签到表实体类（序列化忽略 null 字段）
 @JsonInclude(Include.NON_NULL)
 public class Attendance {
-    /** 签到记录ID */
+    // 签到记录ID
     private Long id;
 
-    /** 活动ID */
+    // 活动ID
     private Long activityId;
 
-    /** 用户ID */
+    // 用户ID
     private Long userId;
 
-    /** 签到时间 */
+    // 签到时间
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime signTime;
 
-    /** 签到方式，"QR" 或 "MANUAL" */
+    // 签到方式，"QR" 或 "MANUAL"
     private String signType;
 
     public Attendance() {

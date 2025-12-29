@@ -16,7 +16,7 @@ public class OperationLogController {
     @Autowired
     private OperationLogService operationLogService;
 
-    // 管理员分页查询操作日志
+    // 管理员查询操作日志（分页）
     @GetMapping("/list")
     public Map<String, Object> list(
             @RequestHeader(value = "Authorization", required = false) String auth,
@@ -54,7 +54,7 @@ public class OperationLogController {
         return result;
     }
 
-    // 导出全部日志为纯文本
+    // 导出日志为文本
     @GetMapping("/export")
     public String exportAllLogs(
             @RequestHeader(value = "Authorization", required = false) String auth,

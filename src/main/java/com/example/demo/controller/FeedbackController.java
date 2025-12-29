@@ -20,7 +20,7 @@ public class FeedbackController {
     @Autowired
     private UserService userService;
 
-    // 提交反馈/建议，需鉴权
+    // 提交反馈（需要登录）
     @PostMapping("/submit")
     public Object submitFeedback(@RequestBody Feedback feedback, HttpServletRequest request) {
         String token = request.getHeader("Authorization");
@@ -40,7 +40,7 @@ public class FeedbackController {
         }
     }
 
-    // 仅管理员可列出反馈
+    // 管理员列出反馈
     @GetMapping("/list")
     public Object listFeedbacks(@RequestParam(required = false) Long activityId, HttpServletRequest request) {
         String token = request.getHeader("Authorization");

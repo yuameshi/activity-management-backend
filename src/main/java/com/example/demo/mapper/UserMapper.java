@@ -13,12 +13,10 @@ public interface UserMapper {
     User findByUsername(@Param("username") String username);
 
     List<User> searchByUsername(@Param("username") String username);
-
-    /**
-     * 支持通过 query 同时模糊搜索用户名和真实姓名
-     */
+ 
+    // 通过 query 同时模糊搜索用户名和真实姓名
     List<User> searchByQuery(@Param("query") String query);
-
+ 
     User findById(@Param("id") Long id);
 
     List<User> findAll();
@@ -29,13 +27,8 @@ public interface UserMapper {
 
     int setUserStatus(@Param("id") Long id, @Param("status") Byte status);
 
-    /**
-     * user中role为1表示管理员，2表示普通用户
-     * 
-     * @param userId 用户ID
-     * @return 角色id
-     */
+    // 获取用户角色（1=管理员，2=普通用户）
     int getRoleByUserId(@Param("userId") Long userId);
-
+ 
     int deleteUserById(@Param("id") Long id);
 }

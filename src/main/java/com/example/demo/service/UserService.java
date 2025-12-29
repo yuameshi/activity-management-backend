@@ -20,12 +20,7 @@ public class UserService {
     @Autowired
     private ImageService imageService;
 
-    /**
-     * 根据用户名获取用户（安全视图，不返回密码）
-     */
-    /**
-     * 支持通过 query 同时模糊搜索用户名和真实姓名（安全视图，不返回密码）
-     */
+    // 通过 query 模糊搜索用户，返回不含密码的安全视图
     public List<User> searchByQuery(String query) {
         if (query == null || query.isEmpty()) {
             throw new IllegalArgumentException("query参数不能为空");
@@ -56,9 +51,7 @@ public class UserService {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
-    /**
-     * 注册新用户，username 必须唯一，password 会被 BCrypt 哈希
-     */
+    // 注册新用户（密码将被 BCrypt 哈希）
     public User register(User user) {
         if (user == null || user.getUsername() == null || user.getPassword() == null) {
             throw new IllegalArgumentException("username and password are required");
@@ -92,9 +85,7 @@ public class UserService {
         return resp;
     }
 
-    /**
-     * 管理员专用：修改用户所有字段（除ID）
-     */
+    // 管理员修改用户（除 ID）
     public User adminUpdateUser(Long id, User update) {
         if (id == null || update == null) {
             throw new IllegalArgumentException("id and update data required");
@@ -134,9 +125,7 @@ public class UserService {
         return safe;
     }
 
-    /**
-     * 仅管理员新建用户（可指定角色）
-     */
+    // 管理员新建用户（可指定角色）
     public User createUserByAdmin(User user) {
         if (user == null || user.getUsername() == null || user.getPassword() == null
                 || user.getEmail() == null || user.getRealName() == null
@@ -168,9 +157,7 @@ public class UserService {
         return resp;
     }
 
-    /**
-     * 登录校验，成功返回包含 token 与用户信息的 map
-     */
+    // 登录校验，成功返回 token 与用户信息
     public Map<String, Object> login(String username, String password) {
         if (username == null || password == null) {
             throw new IllegalArgumentException("username and password are required");
@@ -202,9 +189,7 @@ public class UserService {
         return result;
     }
 
-    /**
-     * 根据 id 获取用户（安全视图：不返回密码）
-     */
+    // 根据 id 获取用户（不返回密码）
     public User getById(Long id) {
         if (id == null)
             throw new IllegalArgumentException("id required");
@@ -224,9 +209,7 @@ public class UserService {
         return safe;
     }
 
-    /**
-     * 列出所有用户（安全视图）
-     */
+    // 列出所有用户（安全视图）
     public List<User> listUsers() {
         List<User> all = userMapper.findAll();
         List<User> out = new ArrayList<>();
@@ -293,9 +276,7 @@ public class UserService {
         return role == 1;
     }
 
-    /**
-     * 删除用户（仅管理员可用）
-     */
+    // 删除用户（仅管理员可用）
     public void deleteUserById(Long id) {
         if (id == null) {
             throw new IllegalArgumentException("id required");
@@ -303,9 +284,7 @@ public class UserService {
         userMapper.deleteUserById(id);
     }
 
-    /**
-     * 管理员设置用户角色
-     */
+    // 管理员设置用户角色
     public User setUserRole(Long userId, int role) {
         if (userId == null) {
             throw new IllegalArgumentException("id required");
@@ -330,9 +309,7 @@ public class UserService {
         return safe;
     }
 
-    /**
-     * 管理员设置用户状态
-     */
+    // 管理员设置用户状态
     public User setUserStatus(Long userId, Byte status) {
         if (userId == null) {
             throw new IllegalArgumentException("id required");
@@ -357,13 +334,7 @@ public class UserService {
         return safe;
     }
 
-    /**
-     * 用户更新头像
-     * 
-     * @param userId  用户ID
-     * @param imageId 图片ID
-     * @return 更新后的用户安全视图
-     */
+    // 用户更新头像，返回更新后的安全视图
     public User updateAvatar(Long userId, Integer imageId) {
         if (userId == null || imageId == null) {
             throw new IllegalArgumentException("userId和imageId不能为空");
