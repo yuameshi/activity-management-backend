@@ -96,7 +96,7 @@ public class User {
         this.status = status;
     }
 
-    public int getRole() {
+    public Integer getRole() {
         return role;
     }
 

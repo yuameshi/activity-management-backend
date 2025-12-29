@@ -63,8 +63,8 @@ public class UserService {
         if (user == null || user.getUsername() == null || user.getPassword() == null) {
             throw new IllegalArgumentException("username and password are required");
         }
-        if (user.getEmail() == null || user.getRealName() == null || user.getPhone() == null || user.getRole() == 0) {
-            throw new IllegalArgumentException("email, realName, phone, role are required");
+        if (user.getEmail() == null || user.getRealName() == null || user.getPhone() == null) {
+            throw new IllegalArgumentException("email, realName, phone are required");
         }
         User exist = userMapper.findByUsername(user.getUsername());
         if (exist != null) {
@@ -75,6 +75,7 @@ public class UserService {
         if (user.getStatus() == null) {
             user.setStatus((byte) 1);
         }
+        user.setRole(2); // 2 是学生
         user.setCreateTime(LocalDateTime.now());
         userMapper.insertUser(user);
         // build a safe response object (do not expose password)
@@ -139,8 +140,8 @@ public class UserService {
     public User createUserByAdmin(User user) {
         if (user == null || user.getUsername() == null || user.getPassword() == null
                 || user.getEmail() == null || user.getRealName() == null
-                || user.getPhone() == null || user.getRole() == 0) {
-            throw new IllegalArgumentException("email, username, realName, phone, role, password are required");
+                || user.getPhone() == null) {
+            throw new IllegalArgumentException("email, username, realName, phone, password are required");
         }
         User exist = userMapper.findByUsername(user.getUsername());
         if (exist != null) {
@@ -355,9 +356,11 @@ public class UserService {
         safe.setRole(user.getRole());
         return safe;
     }
+
     /**
      * 用户更新头像
-     * @param userId 用户ID
+     * 
+     * @param userId  用户ID
      * @param imageId 图片ID
      * @return 更新后的用户安全视图
      */
