@@ -315,16 +315,15 @@ DELETE FROM `images`;
 -- 导出  表 java_ee_db.operation_log 结构
 DROP TABLE IF EXISTS `operation_log`;
 CREATE TABLE IF NOT EXISTS `operation_log` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `user_id` bigint(20) unsigned NOT NULL COMMENT '操作用户ID',
-  `operation` text NOT NULL COMMENT '操作类型',
-  `target_id` bigint(20) DEFAULT NULL COMMENT '目标对象ID',
-  `target_type` varchar(50) DEFAULT NULL COMMENT '目标类型',
-  `ip_address` varchar(45) DEFAULT NULL COMMENT 'IP地址',
-  `create_time` datetime DEFAULT current_timestamp() COMMENT '操作时间',
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `operation` text NOT NULL,
+  `target_id` bigint(20) DEFAULT NULL,
+  `target_type` varchar(50) DEFAULT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `create_time` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
-  KEY `FK_operation_log_user` (`user_id`),
-  CONSTRAINT `FK_operation_log_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  KEY `FK_operation_log_user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 正在导出表  java_ee_db.operation_log 的数据：~0 rows (大约)
@@ -340,7 +339,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `email` varchar(100) DEFAULT NULL,
   `phone` varchar(20) DEFAULT NULL,
   `avatar` varchar(50) DEFAULT NULL,
-  `role` tinyint(4) DEFAULT NULL,
+  `role` tinyint(4) DEFAULT 2,
   `status` tinyint(4) DEFAULT 1,
   `create_time` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
