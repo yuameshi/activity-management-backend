@@ -2,6 +2,10 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Activity;
 import com.example.demo.service.ActivityService;
+import com.example.demo.util.JwtUtil;
+
+import io.jsonwebtoken.Claims;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,6 +31,14 @@ public class ActivityController {
 	@Autowired
 	private ActivityService activityService;
 
+	private Claims parseAuth(String authHeader) {
+		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+			throw new IllegalArgumentException("missing or invalid Authorization header");
+		}
+		String token = authHeader.substring("Bearer ".length());
+		return JwtUtil.parseToken(token);
+	}
+
 	// 获取所有活动
 	@GetMapping("/list")
 	public List<Activity> list(@RequestHeader(value = "Authorization", required = false) String auth,
@@ -47,8 +59,12 @@ public class ActivityController {
 			}
 		} catch (Exception ignored) {
 		}
-		com.example.demo.util.OperationLogUtil.log(userId, String.format("获取活动详情，活动ID=%d", id), id, "Activity",
-				request);
+
+		try {
+			com.example.demo.util.OperationLogUtil.log(userId, String.format("获取活动详情，活动ID=%d", id), id, "Activity",
+					request);
+		} catch (Exception e) {
+		}
 
 		if (id == null)
 			return ResponseEntity.badRequest().body(Map.of("error", "id is required"));
@@ -63,14 +79,20 @@ public class ActivityController {
 	public ResponseEntity<?> create(@RequestBody Activity activity,
 			@RequestHeader(value = "Authorization", required = false) String auth,
 			jakarta.servlet.http.HttpServletRequest request) {
-		Long userId = null;
+
 		try {
-			if (auth != null && auth.startsWith("Bearer ")) {
-				userId = com.example.demo.util.JwtUtil.parseToken(auth.substring(7)).get("id", Long.class);
+			Claims claims = parseAuth(auth);
+			Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+			Long userId = claims.get("id", Long.class);
+			if (isAdmin == null || !isAdmin) {
+				com.example.demo.util.OperationLogUtil.log(userId, "管理员创建活动-鉴权失败", null, "Activity", request);
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
 			}
-		} catch (Exception ignored) {
+			com.example.demo.util.OperationLogUtil.log(userId, "创建活动", null, "Activity", request);
+		} catch (Exception e) {
+			com.example.demo.util.OperationLogUtil.log((long) -1, "管理员创建活动-鉴权失败", null, "Activity", request);
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
 		}
-		com.example.demo.util.OperationLogUtil.log(userId, "创建活动", null, "Activity", request);
 
 		if (activity == null)
 			return ResponseEntity.badRequest().body(Map.of("affected", 0));
@@ -82,16 +104,25 @@ public class ActivityController {
 	@PutMapping("/update/{id}")
 	public ResponseEntity<?> update(@PathVariable Long id,
 			@RequestBody Activity activity,
+			@RequestHeader(value = "Authorization", required = false) String auth,
 			jakarta.servlet.http.HttpServletRequest request) {
-		Long userId = null;
+
 		try {
-			String auth = request.getHeader("Authorization");
-			if (auth != null && auth.startsWith("Bearer ")) {
-				userId = com.example.demo.util.JwtUtil.parseToken(auth.substring(7)).get("id", Long.class);
+			Claims claims = parseAuth(auth);
+			Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+			Long userId = claims.get("id", Long.class);
+			if (isAdmin == null || !isAdmin) {
+				com.example.demo.util.OperationLogUtil.log(userId, String.format("管理员更新活动，活动ID=%d，鉴权失败", id), null,
+						"Activity", request);
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
 			}
-		} catch (Exception ignored) {
+			com.example.demo.util.OperationLogUtil.log(userId, String.format("管理员更新活动，活动ID=%d", id), id, "Activity",
+					request);
+		} catch (Exception e) {
+			com.example.demo.util.OperationLogUtil.log((long) -1, String.format("管理员更新活动，活动ID=%d，鉴权失败", id), null,
+					"Activity", request);
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
 		}
-		com.example.demo.util.OperationLogUtil.log(userId, String.format("更新活动，活动ID=%d", id), id, "Activity", request);
 
 		if (id == null || activity == null)
 			return ResponseEntity.badRequest().body(Map.of("affected", 0));
@@ -105,15 +136,22 @@ public class ActivityController {
 	public ResponseEntity<?> delete(@PathVariable Long id,
 			@RequestHeader(value = "Authorization", required = false) String auth,
 			jakarta.servlet.http.HttpServletRequest request) {
-		Long userId = null;
 		try {
-			if (auth != null && auth.startsWith("Bearer ")) {
-				userId = com.example.demo.util.JwtUtil.parseToken(auth.substring(7)).get("id", Long.class);
+			Claims claims = parseAuth(auth);
+			Boolean isAdmin = claims.get("isAdmin", Boolean.class);
+			Long userId = claims.get("id", Long.class);
+			if (isAdmin == null || !isAdmin) {
+				com.example.demo.util.OperationLogUtil.log(userId, String.format("管理员删除活动，活动ID=%d，鉴权失败", id), null,
+						"Activity", request);
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
 			}
-		} catch (Exception ignored) {
+			com.example.demo.util.OperationLogUtil.log(userId, String.format("管理员删除活动，活动ID=%d", id), id, "Activity",
+					request);
+		} catch (Exception e) {
+			com.example.demo.util.OperationLogUtil.log((long) -1, String.format("管理员删除活动，活动ID=%d，鉴权失败", id), null,
+					"Activity", request);
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
 		}
-		com.example.demo.util.OperationLogUtil.log(userId, String.format("删除活动，活动ID=%d", id), id, "Activity", request);
-
 		if (id == null)
 			return ResponseEntity.badRequest().body(Map.of("affected", 0));
 		int res = activityService.deleteById(id);
