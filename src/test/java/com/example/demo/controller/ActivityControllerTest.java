@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Activity;
 import com.example.demo.service.ActivityService;
+import com.example.demo.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,12 @@ class ActivityControllerTest {
 		ReflectionTestUtils.setField(controller, "activityService", activityService);
 		mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 		objectMapper = new ObjectMapper();
+	}
+
+	private String bearerToken(Long id, String username) {
+		Boolean isAdmin = username.equalsIgnoreCase("admin");
+		String tok = JwtUtil.generateToken(id, username, isAdmin);
+		return "Bearer " + tok;
 	}
 
 	@Test
@@ -81,6 +88,7 @@ class ActivityControllerTest {
 
 		mockMvc.perform(post("/api/activity/create")
 				.contentType(MediaType.APPLICATION_JSON)
+				.header("Authorization", bearerToken(1L, "admin"))
 				.content(objectMapper.writeValueAsString(req)))
 				.andExpect(status().isOk())
 				.andExpect(content().string("{\"affected\":1}"));
@@ -97,6 +105,7 @@ class ActivityControllerTest {
 		when(activityService.updateActivity(any())).thenReturn(1);
 
 		mockMvc.perform(put("/api/activity/update/5")
+				.header("Authorization", bearerToken(1L, "admin"))
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(req)))
 				.andExpect(status().isOk())
@@ -112,7 +121,8 @@ class ActivityControllerTest {
 	void delete_callsService_andReturnsValue() throws Exception {
 		when(activityService.deleteById(7L)).thenReturn(1);
 
-		mockMvc.perform(delete("/api/activity/delete/7"))
+		mockMvc.perform(delete("/api/activity/delete/7")
+				.header("Authorization", bearerToken(1L, "admin")))
 				.andExpect(status().isOk())
 				.andExpect(content().string("{\"affected\":1}"));
 
