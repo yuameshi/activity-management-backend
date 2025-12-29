@@ -2,7 +2,6 @@ package com.example.demo.util;
 
 import com.example.demo.model.OperationLog;
 import com.example.demo.service.OperationLogService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +11,6 @@ public class OperationLogUtil {
 
 	private static OperationLogService operationLogService;
 
-	@Autowired
 	public OperationLogUtil(OperationLogService operationLogService) {
 		OperationLogUtil.operationLogService = operationLogService;
 	}

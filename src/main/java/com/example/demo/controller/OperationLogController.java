@@ -24,6 +24,7 @@ public class OperationLogController {
 			@RequestParam(defaultValue = "10") int size,
 			jakarta.servlet.http.HttpServletRequest request) {
 		Long userId = null;
+		@SuppressWarnings("unused")
 		boolean forbidden = false;
 		try {
 			if (auth == null || !auth.startsWith("Bearer ")) {
@@ -60,6 +61,7 @@ public class OperationLogController {
 			@RequestHeader(value = "Authorization", required = false) String auth,
 			jakarta.servlet.http.HttpServletRequest request) {
 		Long userId = null;
+		@SuppressWarnings("unused")
 		boolean forbidden = false;
 		try {
 			if (auth == null || !auth.startsWith("Bearer ")) {
