@@ -34,7 +34,7 @@ class HelloControllerTest {
 	@EnableWebMvc
 	@Import(HelloController.class)
 	static class TestConfig {
-	
+
 		@Bean
 		HelloMapper helloMapper() {
 			// stub 返回固定数据，避免依赖数据库
@@ -45,7 +45,7 @@ class HelloControllerTest {
 							new HelloEntity(1, "row1"),
 							new HelloEntity(2, "row2"));
 				}
-	
+
 				@Override
 				public List<HelloEntity> findAllDesc() {
 					return List.of(
@@ -54,7 +54,7 @@ class HelloControllerTest {
 				}
 			};
 		}
-	
+
 		@Bean
 		public com.example.demo.service.HelloService helloService() {
 			return new com.example.demo.service.HelloService(helloMapper());

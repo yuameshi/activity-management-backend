@@ -5,41 +5,41 @@
 
 <mapper namespace="com.example.demo.mapper.FeedbackMapper">
 
-    <resultMap id="FeedbackResultMap" type="com.example.demo.model.Feedback">
-        <id property="id" column="id"/>
-        <result property="userId" column="user_id"/>
-        <result property="activityId" column="activity_id"/>
-        <result property="content" column="content"/>
-        <result property="rating" column="rating"/>
-        <result property="createTime" column="create_time"/>
-    </resultMap>
+	<resultMap id="FeedbackResultMap" type="com.example.demo.model.Feedback">
+		<id property="id" column="id"/>
+		<result property="userId" column="user_id"/>
+		<result property="activityId" column="activity_id"/>
+		<result property="content" column="content"/>
+		<result property="rating" column="rating"/>
+		<result property="createTime" column="create_time"/>
+	</resultMap>
 
-    <insert id="insertFeedback" parameterType="com.example.demo.model.Feedback">
-        INSERT INTO feedback
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            user_id,
-            <if test="activityId != null">activity_id,</if>
-            content,
-            rating,
-            create_time
-        </trim>
-        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            #{userId},
-            <if test="activityId != null">#{activityId},</if>
-            #{content},
-            #{rating},
-            NOW()
-        </trim>
-    </insert>
+	<insert id="insertFeedback" parameterType="com.example.demo.model.Feedback">
+		INSERT INTO feedback
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			user_id,
+			<if test="activityId != null">activity_id,</if>
+			content,
+			rating,
+			create_time
+		</trim>
+		<trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+			#{userId},
+			<if test="activityId != null">#{activityId},</if>
+			#{content},
+			#{rating},
+			NOW()
+		</trim>
+	</insert>
 
-    <select id="listFeedbacks" resultMap="FeedbackResultMap">
-        SELECT * FROM feedback
-        <where>
-            <if test="activityId != null">
-                AND activity_id = #{activityId}
-            </if>
-        </where>
-        ORDER BY create_time DESC
-    </select>
+	<select id="listFeedbacks" resultMap="FeedbackResultMap">
+		SELECT * FROM feedback
+		<where>
+			<if test="activityId != null">
+				AND activity_id = #{activityId}
+			</if>
+		</where>
+		ORDER BY create_time DESC
+	</select>
 
 </mapper>

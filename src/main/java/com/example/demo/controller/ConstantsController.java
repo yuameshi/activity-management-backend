@@ -13,19 +13,23 @@ import java.util.List;
 @RequestMapping("/api/constants")
 public class ConstantsController {
 
-    private final ConstantsService constantsService;
+	private final ConstantsService constantsService;
 
-    public ConstantsController(ConstantsService constantsService) {
-        this.constantsService = constantsService;
-    }
+	public ConstantsController(ConstantsService constantsService) {
+		this.constantsService = constantsService;
+	}
 
-    @GetMapping("/user_roles")
-    public List<UserRole> getUserRoles(@org.springframework.web.bind.annotation.RequestHeader(value = "Authorization", required = false) String auth, jakarta.servlet.http.HttpServletRequest request) {
-        return constantsService.getAllUserRoles();
-    }
+	@GetMapping("/user_roles")
+	public List<UserRole> getUserRoles(
+			@org.springframework.web.bind.annotation.RequestHeader(value = "Authorization", required = false) String auth,
+			jakarta.servlet.http.HttpServletRequest request) {
+		return constantsService.getAllUserRoles();
+	}
 
-    @GetMapping("/user_statuses")
-    public List<UserStatus> getUserStatuses(@org.springframework.web.bind.annotation.RequestHeader(value = "Authorization", required = false) String auth, jakarta.servlet.http.HttpServletRequest request) {
-        return constantsService.getAllUserStatuses();
-    }
+	@GetMapping("/user_statuses")
+	public List<UserStatus> getUserStatuses(
+			@org.springframework.web.bind.annotation.RequestHeader(value = "Authorization", required = false) String auth,
+			jakarta.servlet.http.HttpServletRequest request) {
+		return constantsService.getAllUserStatuses();
+	}
 }

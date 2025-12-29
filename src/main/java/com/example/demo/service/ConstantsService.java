@@ -10,19 +10,19 @@ import java.util.List;
 
 @Service
 public class ConstantsService {
-    private final UserRoleMapper userRoleMapper;
-    private final UserStatusMapper userStatusMapper;
+	private final UserRoleMapper userRoleMapper;
+	private final UserStatusMapper userStatusMapper;
 
-    public ConstantsService(UserRoleMapper userRoleMapper, UserStatusMapper userStatusMapper) {
-        this.userRoleMapper = userRoleMapper;
-        this.userStatusMapper = userStatusMapper;
-    }
+	public ConstantsService(UserRoleMapper userRoleMapper, UserStatusMapper userStatusMapper) {
+		this.userRoleMapper = userRoleMapper;
+		this.userStatusMapper = userStatusMapper;
+	}
 
-    public List<UserRole> getAllUserRoles() {
-        return userRoleMapper.selectAll();
-    }
+	public List<UserRole> getAllUserRoles() {
+		return userRoleMapper.selectAll();
+	}
 
-    public List<UserStatus> getAllUserStatuses() {
-        return userStatusMapper.selectAll();
-    }
+	public List<UserStatus> getAllUserStatuses() {
+		return userStatusMapper.selectAll();
+	}
 }

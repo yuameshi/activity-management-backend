@@ -3,10 +3,10 @@
 
 <mapper namespace="com.example.demo.mapper.ImageMapper">
 
-    <insert id="insertImage" parameterType="com.example.demo.model.Image" useGeneratedKeys="true"
-        keyProperty="id"> INSERT INTO images (path, uploader_uid) VALUES (#{path}, #{uploaderUid}) </insert>
+	<insert id="insertImage" parameterType="com.example.demo.model.Image" useGeneratedKeys="true"
+		keyProperty="id"> INSERT INTO images (path, uploader_uid) VALUES (#{path}, #{uploaderUid}) </insert>
 
-    <select id="selectImageById" parameterType="int" resultType="com.example.demo.model.Image">
-        SELECT id, path, uploader_uid FROM images WHERE id = #{id} </select>
+	<select id="selectImageById" parameterType="int" resultType="com.example.demo.model.Image">
+		SELECT id, path, uploader_uid FROM images WHERE id = #{id} </select>
 
 </mapper>

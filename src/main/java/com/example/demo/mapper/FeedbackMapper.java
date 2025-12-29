@@ -8,7 +8,7 @@ import java.util.List;
 
 @Mapper
 public interface FeedbackMapper {
-    int insertFeedback(Feedback feedback);
+	int insertFeedback(Feedback feedback);
 
-    List<Feedback> listFeedbacks(@Param("activityId") Long activityId);
+	List<Feedback> listFeedbacks(@Param("activityId") Long activityId);
 }

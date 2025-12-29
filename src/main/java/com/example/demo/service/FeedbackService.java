@@ -10,14 +10,14 @@ import java.util.List;
 @Service
 public class FeedbackService {
 
-    @Autowired
-    private FeedbackMapper feedbackMapper;
+	@Autowired
+	private FeedbackMapper feedbackMapper;
 
-    public void submitFeedback(Feedback feedback) {
-        feedbackMapper.insertFeedback(feedback);
-    }
+	public void submitFeedback(Feedback feedback) {
+		feedbackMapper.insertFeedback(feedback);
+	}
 
-    public List<Feedback> listFeedbacks(Long activityId) {
-        return feedbackMapper.listFeedbacks(activityId);
-    }
+	public List<Feedback> listFeedbacks(Long activityId) {
+		return feedbackMapper.listFeedbacks(activityId);
+	}
 }

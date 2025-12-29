@@ -8,11 +8,11 @@ import java.util.List;
 
 @Mapper
 public interface OperationLogMapper {
-    int insert(OperationLog log);
+	int insert(OperationLog log);
 
-    List<OperationLog> selectAll();
+	List<OperationLog> selectAll();
 
-    List<OperationLog> selectByPage(@Param("offset") int offset, @Param("limit") int limit);
+	List<OperationLog> selectByPage(@Param("offset") int offset, @Param("limit") int limit);
 
-    int count();
+	int count();
 }

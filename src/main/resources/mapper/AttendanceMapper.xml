@@ -5,53 +5,46 @@
 
 <mapper namespace="com.example.demo.mapper.AttendanceMapper">
 
-    <!-- 手动字段映射，解决数据库字段与实体类属性不一致问题 -->
-    <resultMap id="AttendanceResultMap" type="com.example.demo.model.Attendance">
-        <id property="id" column="id"/>
-        <result property="activityId" column="activity_id"/>
-        <result property="userId" column="user_id"/>
-        <result property="signTime" column="sign_time"/>
-        <result property="signType" column="sign_type"/>
-    </resultMap>
+	<resultMap id="AttendanceResultMap" type="com.example.demo.model.Attendance">
+		<id property="id" column="id"/>
+		<result property="activityId" column="activity_id"/>
+		<result property="userId" column="user_id"/>
+		<result property="signTime" column="sign_time"/>
+		<result property="signType" column="sign_type"/>
+	</resultMap>
 
-    <!-- 插入签到记录 -->
-    <insert id="insertAttendance" parameterType="com.example.demo.model.Attendance">
-        INSERT INTO attendance (activity_id, user_id, sign_time, sign_type)
-        VALUES (#{activityId}, #{userId}, #{signTime}, #{signType})
-    </insert>
+	<insert id="insertAttendance" parameterType="com.example.demo.model.Attendance">
+		INSERT INTO attendance (activity_id, user_id, sign_time, sign_type)
+		VALUES (#{activityId}, #{userId}, #{signTime}, #{signType})
+	</insert>
 
-    <!-- 根据活动ID查询签到记录 -->
-    <select id="findByActivityId" resultMap="AttendanceResultMap">
-        SELECT id, activity_id, user_id, sign_time, sign_type
-        FROM attendance
-        WHERE activity_id = #{activityId}
-    </select>
+	<select id="findByActivityId" resultMap="AttendanceResultMap">
+		SELECT id, activity_id, user_id, sign_time, sign_type
+		FROM attendance
+		WHERE activity_id = #{activityId}
+	</select>
 
-    <!-- 根据用户ID查询签到记录 -->
-    <select id="findByUserId" resultMap="AttendanceResultMap">
-        SELECT id, activity_id, user_id, sign_time, sign_type
-        FROM attendance
-        WHERE user_id = #{userId}
-    </select>
+	<select id="findByUserId" resultMap="AttendanceResultMap">
+		SELECT id, activity_id, user_id, sign_time, sign_type
+		FROM attendance
+		WHERE user_id = #{userId}
+	</select>
 
-    <!-- 按活动ID和签到状态筛选签到记录 -->
-    <select id="findByActivityIdAndStatus" resultMap="AttendanceResultMap">
-        SELECT id, activity_id, user_id, sign_time, sign_type
-        FROM attendance
-        WHERE activity_id = #{activityId}
-        <if test="status != null and status != ''">
-            AND status = #{status}
-        </if>
-    </select>
-    <!-- 根据ID删除签到记录 -->
-    <delete id="deleteAttendanceById" parameterType="long">
-        DELETE FROM attendance WHERE id = #{id}
-    </delete>
-    <!-- 根据用户ID和活动ID查找签到记录 -->
-    <select id="findByUserIdAndActivityId" resultMap="AttendanceResultMap">
-        SELECT id, activity_id, user_id, sign_time, sign_type
-        FROM attendance
-        WHERE user_id = #{userId} AND activity_id = #{activityId}
-        LIMIT 1
-    </select>
+	<select id="findByActivityIdAndStatus" resultMap="AttendanceResultMap">
+		SELECT id, activity_id, user_id, sign_time, sign_type
+		FROM attendance
+		WHERE activity_id = #{activityId}
+		<if test="status != null and status != ''">
+			AND status = #{status}
+		</if>
+	</select>
+	<delete id="deleteAttendanceById" parameterType="long">
+		DELETE FROM attendance WHERE id = #{id}
+	</delete>
+	<select id="findByUserIdAndActivityId" resultMap="AttendanceResultMap">
+		SELECT id, activity_id, user_id, sign_time, sign_type
+		FROM attendance
+		WHERE user_id = #{userId} AND activity_id = #{activityId}
+		LIMIT 1
+	</select>
 </mapper>

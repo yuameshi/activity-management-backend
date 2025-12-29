@@ -8,27 +8,27 @@ import java.util.List;
 
 @Mapper
 public interface UserMapper {
-    int insertUser(User user);
+	int insertUser(User user);
 
-    User findByUsername(@Param("username") String username);
+	User findByUsername(@Param("username") String username);
 
-    List<User> searchByUsername(@Param("username") String username);
- 
-    // 通过 query 同时模糊搜索用户名和真实姓名
-    List<User> searchByQuery(@Param("query") String query);
- 
-    User findById(@Param("id") Long id);
+	List<User> searchByUsername(@Param("username") String username);
 
-    List<User> findAll();
+	// 通过 query 同时模糊搜索用户名和真实姓名
+	List<User> searchByQuery(@Param("query") String query);
 
-    int updateUser(User user);
+	User findById(@Param("id") Long id);
 
-    int setUserRole(@Param("id") Long id, @Param("role") int role);
+	List<User> findAll();
 
-    int setUserStatus(@Param("id") Long id, @Param("status") Byte status);
+	int updateUser(User user);
 
-    // 获取用户角色（1=管理员，2=普通用户）
-    int getRoleByUserId(@Param("userId") Long userId);
- 
-    int deleteUserById(@Param("id") Long id);
+	int setUserRole(@Param("id") Long id, @Param("role") int role);
+
+	int setUserStatus(@Param("id") Long id, @Param("status") Byte status);
+
+	// 获取用户角色（1=管理员，2=普通用户）
+	int getRoleByUserId(@Param("userId") Long userId);
+
+	int deleteUserById(@Param("id") Long id);
 }

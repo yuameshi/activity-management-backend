@@ -8,6 +8,6 @@ import java.util.List;
 
 @Mapper
 public interface UserStatusMapper {
-    @Select("SELECT id, name FROM user_status")
-    List<UserStatus> selectAll();
+	@Select("SELECT id, name FROM user_status")
+	List<UserStatus> selectAll();
 }

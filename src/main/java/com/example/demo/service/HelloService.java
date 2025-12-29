@@ -9,17 +9,17 @@ import java.util.List;
 @Service
 public class HelloService {
 
-    private final HelloMapper helloMapper;
+	private final HelloMapper helloMapper;
 
-    public HelloService(HelloMapper helloMapper) {
-        this.helloMapper = helloMapper;
-    }
+	public HelloService(HelloMapper helloMapper) {
+		this.helloMapper = helloMapper;
+	}
 
-    public List<HelloEntity> findAll() {
-        return helloMapper.findAll();
-    }
+	public List<HelloEntity> findAll() {
+		return helloMapper.findAll();
+	}
 
-    public List<HelloEntity> findAllDesc() {
-        return helloMapper.findAllDesc();
-    }
+	public List<HelloEntity> findAllDesc() {
+		return helloMapper.findAllDesc();
+	}
 }

@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface ImageMapper {
-    int insertImage(Image image);
+	int insertImage(Image image);
 
-    Image selectImageById(@Param("id") Integer id);
+	Image selectImageById(@Param("id") Integer id);
 }

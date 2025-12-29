@@ -1,73 +1,73 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.mapper.UserMapper">
 
-  <resultMap id="UserResultMap" type="com.example.demo.model.User">
-    <id property="id" column="id" />
-    <result property="username" column="username" />
-    <result property="password" column="password" />
-    <result property="realName" column="real_name" />
-    <result property="email" column="email" />
-    <result property="phone" column="phone" />
-    <result property="avatar" column="avatar" />
-    <result property="status" column="status" />
-    <result property="role" column="role" />
-    <result property="createTime" column="create_time" />
-  </resultMap>
+	<resultMap id="UserResultMap" type="com.example.demo.model.User">
+		<id property="id" column="id" />
+		<result property="username" column="username" />
+		<result property="password" column="password" />
+		<result property="realName" column="real_name" />
+		<result property="email" column="email" />
+		<result property="phone" column="phone" />
+		<result property="avatar" column="avatar" />
+		<result property="status" column="status" />
+		<result property="role" column="role" />
+		<result property="createTime" column="create_time" />
+	</resultMap>
 
-  <insert id="insertUser" parameterType="com.example.demo.model.User" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO user (username, password, real_name, email, phone, avatar, role, status, create_time)
-    VALUES (#{username}, #{password}, #{realName}, #{email}, #{phone}, #{avatar}, #{role}, #{status}, #{createTime})
-  </insert>
+	<insert id="insertUser" parameterType="com.example.demo.model.User" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO user (username, password, real_name, email, phone, avatar, role, status, create_time)
+		VALUES (#{username}, #{password}, #{realName}, #{email}, #{phone}, #{avatar}, #{role}, #{status}, #{createTime})
+	</insert>
 
-  <select id="findByUsername" parameterType="string" resultMap="UserResultMap">
-    SELECT * FROM user WHERE username = #{username}
-  </select>
+	<select id="findByUsername" parameterType="string" resultMap="UserResultMap">
+		SELECT * FROM user WHERE username = #{username}
+	</select>
 
-  <select id="searchByQuery" parameterType="string" resultMap="UserResultMap">
-    SELECT * FROM user
-    WHERE username LIKE CONCAT('%', #{query}, '%')
-       OR real_name LIKE CONCAT('%', #{query}, '%')
-    ORDER BY id
-  </select>
+	<select id="searchByQuery" parameterType="string" resultMap="UserResultMap">
+		SELECT * FROM user
+		WHERE username LIKE CONCAT('%', #{query}, '%')
+			 OR real_name LIKE CONCAT('%', #{query}, '%')
+		ORDER BY id
+	</select>
 
-  <select id="findById" parameterType="long" resultMap="UserResultMap">
-    SELECT * FROM user WHERE id = #{id}
-  </select>
+	<select id="findById" parameterType="long" resultMap="UserResultMap">
+		SELECT * FROM user WHERE id = #{id}
+	</select>
 
-  <select id="findAll" resultMap="UserResultMap">
-    SELECT * FROM user ORDER BY id
-  </select>
+	<select id="findAll" resultMap="UserResultMap">
+		SELECT * FROM user ORDER BY id
+	</select>
 
-  <update id="updateUser" parameterType="com.example.demo.model.User">
-    UPDATE user
-    <set>
-      <if test="username != null">username = #{username},</if>
-      <if test="password != null">password = #{password},</if>
-      <if test="realName != null">real_name = #{realName},</if>
-      <if test="email != null">email = #{email},</if>
-      <if test="phone != null">phone = #{phone},</if>
-      <if test="avatar != null">avatar = #{avatar},</if>
-      <if test="status != null">status = #{status},</if>
-      <if test="role != null">role = #{role},</if>
-    </set>
-    WHERE id = #{id}
-  </update>
+	<update id="updateUser" parameterType="com.example.demo.model.User">
+		UPDATE user
+		<set>
+			<if test="username != null">username = #{username},</if>
+			<if test="password != null">password = #{password},</if>
+			<if test="realName != null">real_name = #{realName},</if>
+			<if test="email != null">email = #{email},</if>
+			<if test="phone != null">phone = #{phone},</if>
+			<if test="avatar != null">avatar = #{avatar},</if>
+			<if test="status != null">status = #{status},</if>
+			<if test="role != null">role = #{role},</if>
+		</set>
+		WHERE id = #{id}
+	</update>
 
-  <update id="setUserRole" parameterType="map">
-    UPDATE user SET role = #{role} WHERE id = #{id}
-  </update>
+	<update id="setUserRole" parameterType="map">
+		UPDATE user SET role = #{role} WHERE id = #{id}
+	</update>
 
-  <update id="setUserStatus" parameterType="map">
-    UPDATE user SET status = #{status} WHERE id = #{id}
-  </update>
+	<update id="setUserStatus" parameterType="map">
+		UPDATE user SET status = #{status} WHERE id = #{id}
+	</update>
 
-  <select id="getRoleByUserId" parameterType="long" resultType="int">
-    SELECT role FROM user WHERE id = #{userId}
-  </select>
-  <delete id="deleteUserById" parameterType="long">
-    DELETE FROM user WHERE id = #{id}
-  </delete>
+	<select id="getRoleByUserId" parameterType="long" resultType="int">
+		SELECT role FROM user WHERE id = #{userId}
+	</select>
+	<delete id="deleteUserById" parameterType="long">
+		DELETE FROM user WHERE id = #{id}
+	</delete>
 </mapper>

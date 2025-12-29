@@ -8,6 +8,6 @@ import java.util.List;
 
 @Mapper
 public interface UserRoleMapper {
-    @Select("SELECT id, name, description FROM user_role")
-    List<UserRole> selectAll();
+	@Select("SELECT id, name, description FROM user_role")
+	List<UserRole> selectAll();
 }

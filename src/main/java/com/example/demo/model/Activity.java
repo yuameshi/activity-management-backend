@@ -8,100 +8,100 @@ import java.time.LocalDateTime;
 
 @JsonInclude(Include.NON_NULL)
 public class Activity {
-    private Long id;
-    private String title;
-    private String description;
-    private String location;
+	private Long id;
+	private String title;
+	private String description;
+	private String location;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime startTime;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime startTime;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime endTime;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime endTime;
 
-    private Long publisherId;
+	private Long publisherId;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createTime;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime createTime;
 
-    public Activity() {
-    }
+	public Activity() {
+	}
 
-    public Long getId() {
-        return id;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public String getTitle() {
-        return title;
-    }
+	public String getTitle() {
+		return title;
+	}
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+	public void setTitle(String title) {
+		this.title = title;
+	}
 
-    public String getDescription() {
-        return description;
-    }
+	public String getDescription() {
+		return description;
+	}
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
-    public String getLocation() {
-        return location;
-    }
+	public String getLocation() {
+		return location;
+	}
 
-    public void setLocation(String location) {
-        this.location = location;
-    }
+	public void setLocation(String location) {
+		this.location = location;
+	}
 
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
+	public LocalDateTime getStartTime() {
+		return startTime;
+	}
 
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
+	public void setStartTime(LocalDateTime startTime) {
+		this.startTime = startTime;
+	}
 
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
+	public LocalDateTime getEndTime() {
+		return endTime;
+	}
 
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
-    }
+	public void setEndTime(LocalDateTime endTime) {
+		this.endTime = endTime;
+	}
 
-    public Long getPublisherId() {
-        return publisherId;
-    }
+	public Long getPublisherId() {
+		return publisherId;
+	}
 
-    public void setPublisherId(Long publisherId) {
-        this.publisherId = publisherId;
-    }
+	public void setPublisherId(Long publisherId) {
+		this.publisherId = publisherId;
+	}
 
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
+	public LocalDateTime getCreateTime() {
+		return createTime;
+	}
 
-    public void setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
-    }
+	public void setCreateTime(LocalDateTime createTime) {
+		this.createTime = createTime;
+	}
 
-    @Override
-    public String toString() {
-        return "Activity{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", location='" + location + '\'' +
-                ", startTime=" + startTime +
-                ", endTime=" + endTime +
-                ", publisherId=" + publisherId +
-                ", createTime=" + createTime +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "Activity{" +
+				"id=" + id +
+				", title='" + title + '\'' +
+				", description='" + description + '\'' +
+				", location='" + location + '\'' +
+				", startTime=" + startTime +
+				", endTime=" + endTime +
+				", publisherId=" + publisherId +
+				", createTime=" + createTime +
+				'}';
+	}
 }
