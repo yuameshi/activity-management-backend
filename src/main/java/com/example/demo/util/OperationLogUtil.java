@@ -24,6 +24,10 @@ public class OperationLogUtil {
         }
         System.out.println("[OperationLogUtil.log] userId=" + userId + ", operation=" + operation + ", targetId=" + targetId + ", targetType=" + targetType + ", ip=" + ip);
         OperationLog log = new OperationLog(userId, operation, targetId, targetType, ip);
-        operationLogService.addLog(log);
+        if (operationLogService != null) {
+            operationLogService.addLog(log);
+        } else {
+            System.out.println("[OperationLogUtil] operationLogService is null, skipping persist");
+        }
     }
 }
