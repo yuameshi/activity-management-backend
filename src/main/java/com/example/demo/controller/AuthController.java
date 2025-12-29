@@ -52,14 +52,17 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest req, jakarta.servlet.http.HttpServletRequest request) {
         try {
             Map<String, Object> result = userService.login(req.getUsername(), req.getPassword());
-            // 登录后仅在状态正常时返回 token 与用户信息
-            if (result.containsKey("user") && result.get("user") instanceof User) {
-                User u = (User) result.get("user");
-                if (u.getStatus() == null || u.getStatus() != 1) {
+            if (result == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "登录失败"));
+            }
+            java.util.Map<String, Object> out = new java.util.HashMap<>(result);
+            if (out.containsKey("user") && out.get("user") instanceof User) {
+                User u = (User) out.get("user");
+                if (u.getStatus() != null && u.getStatus() != 1) {
                     com.example.demo.util.OperationLogUtil.log(u.getId(), "用户登录-状态异常", u.getId(), "User", request);
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "用户状态异常，禁止登录"));
                 }
-                result.put("user", new User() {{
+                out.put("user", new User() {{
                     setId(u.getId());
                     setUsername(u.getUsername());
                     setRealName(u.getRealName());
@@ -71,13 +74,13 @@ public class AuthController {
                     setRole(u.getRole());
                 }});
                 com.example.demo.util.OperationLogUtil.log(u.getId(), "用户登录", u.getId(), "User", request);
-                return ResponseEntity.ok(result);
+                return ResponseEntity.ok(out);
             }
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "登录失败"));
         } catch (IllegalArgumentException ex) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", String.valueOf(ex.getMessage())));
         } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", ex.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", String.valueOf(ex.getMessage())));
         }
     }
 
