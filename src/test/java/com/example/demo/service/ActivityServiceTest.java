@@ -15,9 +15,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-/**
- * 与项目中 UserServiceTest 风格一致，使用 MockitoExtension 与注解方式。
- */
 @ExtendWith(MockitoExtension.class)
 class ActivityServiceTest {
 
@@ -29,11 +26,8 @@ class ActivityServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Mockito 注解驱动，不需要手动初始化 mocks
     }
 
-    // a) createActivity：当 createTime 为 null 时设置 createTime 并调用
-    // mapper.insertActivity，返回 mapper 的返回值
     @Test
     void createActivity_whenCreateTimeNull_setsCreateTime_and_callsInsert() {
         Activity activity = new Activity();
@@ -49,8 +43,6 @@ class ActivityServiceTest {
         verify(activityMapper).insertActivity(activity);
     }
 
-    // b) getById：mapper 返回 activity，则 service 返回相同对象；mapper 返回 null，service 返回
-    // null。
     @Test
     void getById_whenFound_returnsActivity() {
         Activity a = new Activity();
@@ -73,7 +65,6 @@ class ActivityServiceTest {
         verify(activityMapper).findById(99L);
     }
 
-    // c) getAll：mapper 返回列表，service 返回相同列表。
     @Test
     void getAll_returnsListFromMapper() {
         List<Activity> list = Arrays.asList(new Activity(), new Activity());
@@ -85,8 +76,6 @@ class ActivityServiceTest {
         verify(activityMapper).findAll();
     }
 
-    // d) updateActivity：当传入 null 或 id 为 null，断言返回 0 或按实现行为；当 mapper.updateActivity
-    // 返回 >0，断言方法返回对应值。
     @Test
     void updateActivity_whenNull_returnsZero() {
         assertEquals(0, activityService.updateActivity(null));
@@ -117,7 +106,6 @@ class ActivityServiceTest {
         verify(activityMapper).updateActivity(a);
     }
 
-    // e) deleteById：测试 mapper.deleteById 被调用并返回预期值。
     @Test
     void deleteById_whenIdNull_returnsZero() {
         assertEquals(0, activityService.deleteById(null));

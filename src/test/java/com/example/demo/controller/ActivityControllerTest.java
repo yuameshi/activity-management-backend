@@ -21,15 +21,12 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-/**
- * 使用 standalone MockMvcBuilders 测试 ActivityController，手动 mock ActivityService（参考 UserControllerTest 风格）。
- */
 class ActivityControllerTest {
 
     private MockMvc mockMvc;
     private ActivityService activityService;
     private ObjectMapper objectMapper;
-    
+
     @BeforeEach
     void setUp() {
         activityService = Mockito.mock(ActivityService.class);
@@ -39,7 +36,6 @@ class ActivityControllerTest {
         objectMapper = new ObjectMapper();
     }
 
-    // a) GET /api/activity/list -> 返回 200 并包含 service 返回的活动列表 JSON。
     @Test
     void list_returnsActivities() throws Exception {
         List<Activity> list = Arrays.asList(new Activity(), new Activity());
@@ -52,7 +48,6 @@ class ActivityControllerTest {
         verify(activityService).getAll();
     }
 
-    // b) GET /api/activity/{id} -> id 存在返回 200 与对象 JSON；id 不存在按照 controller 实现（返回 null -> 200 空体）
     @Test
     void get_existing_returnsObjectJson() throws Exception {
         Activity a = new Activity();
@@ -78,7 +73,6 @@ class ActivityControllerTest {
         verify(activityService).getById(99L);
     }
 
-    // c) POST /api/activity/create -> 发送 JSON 活动对象，断言 service.createActivity 被调用且返回值体内可见或状态为 200。
     @Test
     void create_callsService_andReturnsValue() throws Exception {
         Activity req = new Activity();
@@ -96,7 +90,6 @@ class ActivityControllerTest {
         assertEquals("New", captor.getValue().getTitle());
     }
 
-    // d) PUT /api/activity/update/{id} -> 发送 JSON，断言调用 service.updateActivity。
     @Test
     void update_callsService_andReturnsValue() throws Exception {
         Activity req = new Activity();
@@ -115,7 +108,6 @@ class ActivityControllerTest {
         assertEquals("Upd", captor.getValue().getTitle());
     }
 
-    // e) DELETE /api/activity/delete/{id} -> 断言调用 service.deleteById。
     @Test
     void delete_callsService_andReturnsValue() throws Exception {
         when(activityService.deleteById(7L)).thenReturn(1);

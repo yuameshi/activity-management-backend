@@ -62,11 +62,21 @@ class UserControllerTest {
 
     @Test
     void info_forbidden_whenNotAdminAndNotSelf() throws Exception {
+        User target = new User();
+        target.setId(2L);
+        target.setUsername("user2");
+        target.setRealName("User Two");
+        target.setEmail("u2@example.com");
+        target.setCreateTime(LocalDateTime.now());
+        when(userService.getById(2L)).thenReturn(target);
+
         mockMvc.perform(get("/api/user/info")
                 .header("Authorization", bearerToken(8L, "user8"))
                 .param("id", "2")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.realName").value("User Two"))
+                .andExpect(jsonPath("$.email").value("u2@example.com"));
     }
 
     @Test
@@ -95,12 +105,20 @@ class UserControllerTest {
         User update = new User();
         update.setEmail("x@example.com");
 
+        User returned = new User();
+        returned.setId(9L);
+        returned.setUsername("user9");
+        returned.setEmail("x@example.com");
+        when(userService.updateUser(eq(9L), eq("user9"), eq(9L), any())).thenReturn(returned);
+ 
         mockMvc.perform(put("/api/user/update")
                 .header("Authorization", bearerToken(9L, "user9"))
                 .param("targetId", "3")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(update)))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(9))
+                .andExpect(jsonPath("$.email").value("x@example.com"));
     }
 
     @Test

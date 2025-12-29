@@ -43,7 +43,6 @@ class AttendanceControllerTest {
 
     @Test
     void getByActivityId_returnsAttendanceList() throws Exception {
-        // 构造带 userId 的 Attendance
         Attendance att1 = new Attendance();
         att1.setUserId(1L);
         Attendance att2 = new Attendance();
@@ -51,7 +50,6 @@ class AttendanceControllerTest {
         List<Attendance> list = Arrays.asList(att1, att2);
         when(attendanceService.getByActivityId(1L)).thenReturn(list);
 
-        // mock userService.getById，返回带用户名的User，避免NPE
         UserService userService = Mockito.mock(UserService.class);
         com.example.demo.model.User mockUser1 = new com.example.demo.model.User();
         mockUser1.setUsername("mockUser1");
@@ -90,7 +88,6 @@ class AttendanceControllerTest {
         when(activityService.getById(2L)).thenReturn(act);
         when(attendanceService.createAttendance(any())).thenReturn(1);
 
-        // mock static method getTOTPCode
         try (var mocked = Mockito.mockStatic(AttendanceController.class, Mockito.CALLS_REAL_METHODS)) {
             mocked.when(() -> AttendanceController.getTOTPCode(anyString())).thenReturn("123456");
 
@@ -117,9 +114,6 @@ class AttendanceControllerTest {
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.msg").value("无权为他人签到"));
     }
-
-    // 已删除 /api/attendance/list/{activityId} 源码接口，移除对应测试
-    // 清理多余的 @Test 注解和空方法，防止重复注解错误
 
     @Test
     void signAttendance_invalidJwt() throws Exception {

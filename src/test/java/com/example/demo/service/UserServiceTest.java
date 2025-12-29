@@ -32,6 +32,8 @@ class UserServiceTest {
         req.setUsername("alice");
         req.setPassword("password123");
         req.setEmail("a@example.com");
+        req.setRealName("Alice");
+        req.setPhone("1234567890");
 
         User created = userService.register(req);
 
@@ -57,6 +59,9 @@ class UserServiceTest {
         User req = new User();
         req.setUsername("bob");
         req.setPassword("x");
+        req.setEmail("b@example.com");
+        req.setRealName("Bob");
+        req.setPhone("0987654321");
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> userService.register(req));
         assertTrue(ex.getMessage().toLowerCase().contains("exists"));
@@ -97,7 +102,7 @@ class UserServiceTest {
     }
     @Test
     void deleteUserById_success() {
-        doNothing().when(userMapper).deleteUserById(5L);
+        when(userMapper.deleteUserById(5L)).thenReturn(1);
         assertDoesNotThrow(() -> userService.deleteUserById(5L));
         verify(userMapper, times(1)).deleteUserById(5L);
     }

@@ -37,7 +37,7 @@ class HelloControllerTest {
 	
 		@Bean
 		HelloMapper helloMapper() {
-			// 避免测试依赖真实数据库：这里提供一个简单的 stub 返回固定数据
+			// stub 返回固定数据，避免依赖数据库
 			return new HelloMapper() {
 				@Override
 				public List<HelloEntity> findAll() {
