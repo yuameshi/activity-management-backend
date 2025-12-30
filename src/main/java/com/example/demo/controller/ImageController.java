@@ -36,21 +36,17 @@ public class ImageController {
 	@PostMapping("/upload")
 	public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file,
 			@RequestHeader("Authorization") String auth,
-			@RequestHeader(value = "Host") String host,
-			@RequestHeader(value = "X-Forwarded-Proto", required = false) String proto,
 			jakarta.servlet.http.HttpServletRequest request) {
 		try {
 			Claims claims = parseAuth(auth);
 			Long requesterId = ((Number) claims.get("id")).longValue();
 			Image image = imageService.saveImage(file, requesterId);
-			String scheme = proto != null ? proto : "http";
-			String baseUrl = scheme + "://" + host;
-			String absPath = baseUrl + image.getPath();
-			String rawUrl = baseUrl + "/api/image/raw/" + image.getId();
+			String relPath = image.getPath();
+			String rawUrl = "/api/image/raw/" + image.getId();
 			com.example.demo.util.OperationLogUtil.log(requesterId, String.format("上传图片，图片ID=%d", image.getId()),
 					image.getId() != null ? image.getId().longValue() : null, "Image", request);
 			return ResponseEntity.ok()
-					.body(new UploadResult(image.getId(), absPath, rawUrl));
+					.body(new UploadResult(image.getId(), relPath, rawUrl));
 		} catch (Exception e) {
 			System.out.println("上传异常: " + e.getMessage());
 			return ResponseEntity.badRequest().body("上传失败: " + e.getMessage());
@@ -59,18 +55,16 @@ public class ImageController {
 
 	// 查询图片路径
 	@GetMapping("/path/{id}")
-	public ResponseEntity<?> getPath(@PathVariable Integer id, @RequestHeader(value = "Host") String host,
-			@RequestHeader(value = "X-Forwarded-Proto", required = false) String proto,
-			jakarta.servlet.http.HttpServletRequest request) {
+	public ResponseEntity<?> getPath(@PathVariable Integer id, jakarta.servlet.http.HttpServletRequest request) {
 		com.example.demo.util.OperationLogUtil.log(null, String.format("获取图片路径，图片ID=%d", id),
 				id != null ? id.longValue() : null, "Image", request);
 		Image image = imageService.getImageById(id);
 		if (image == null) {
 			return ResponseEntity.notFound().build();
 		}
-		String scheme = proto != null ? proto : "http";
-		String absPath = scheme + "://" + host + image.getPath();
-		return ResponseEntity.ok().body(absPath);
+		// 返回相对路径（无需 Host 头）
+		String relPath = image.getPath();
+		return ResponseEntity.ok().body(relPath);
 	}
 
 	// 返回图片二进制流
